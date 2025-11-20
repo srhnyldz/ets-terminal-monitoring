@@ -21,6 +21,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.live import Live
 from rich import box
+from core import ping_host as core_ping_host, check_port as core_check_port, PingPolicy, PortPolicy
 
 console = Console()
 
@@ -185,42 +186,11 @@ def server_key(srv: Dict[str, Any]) -> str:
 
 
 def ping_host(host: str) -> Optional[float]:
-    if PREFER_SYSTEM_PING:
-        try:
-            proc = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, timeout=PING_TIMEOUT + 1)
-            if proc.returncode == 0:
-                out = proc.stdout or proc.stderr
-                m = re.search(r"time[=<]\s*([\d\.]+)\s*ms", out)
-                if m:
-                    return float(m.group(1))
-        except Exception:
-            pass
-    try:
-        rtt = ping(host, timeout=PING_TIMEOUT, unit="ms", privileged=False)
-        if rtt is not None:
-            return float(rtt)
-    except Exception:
-        pass
-    try:
-        proc = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, timeout=PING_TIMEOUT + 1)
-        if proc.returncode != 0:
-            return None
-        out = proc.stdout or proc.stderr
-        m = re.search(r"time[=<]\s*([\d\.]+)\s*ms", out)
-        if m:
-            return float(m.group(1))
-        return None
-    except Exception:
-        return None
+    return core_ping_host(host, timeout=PING_TIMEOUT, prefer_system_ping=PREFER_SYSTEM_PING)
 
 
 def check_port(host: str, port: int, timeout: float = 1.5) -> bool:
-    """TCP portuna bağlanmayı dener. Başarılıysa True, değilse False."""
-    try:
-        with socket.create_connection((host, port), timeout=timeout):
-            return True
-    except OSError:
-        return False
+    return core_check_port(host, port, timeout=timeout)
 
 
 def update_and_get_uptime(stats: Dict[str, Dict[str, int]], key: str, is_up: bool) -> Optional[float]:

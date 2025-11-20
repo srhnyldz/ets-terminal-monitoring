@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.3 — 2025-11-20
+
+- Moved core functions to `core.py`: `ping_host`, `check_port`
+- Introduced simple policy interfaces: `PingPolicy`, `PortPolicy`
+- `monitor.py` uses core abstractions; functionality preserved
+- Version bumped to 2.0.3
+
 ## v2.0.2 — 2025-11-20
 
 - Moved file I/O and logging to `app_io.py` module

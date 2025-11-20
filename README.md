@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.2
+- Version: v2.0.3
 
 Features
 
@@ -15,6 +15,7 @@ Features
 - Multi-language (default English, Turkish via CLI)
 - State managed via `AppState` (global state removed)
 - I/O operations abstracted to `app_io.py` (logs, settings, servers, stats)
+- Core functions moved to `core.py` (`ping_host`, `check_port`); simple policies
 
 Requirements
 
@@ -71,7 +72,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.2
+- Sürüm: v2.0.3
 
 Özellikler
 
@@ -83,6 +84,7 @@ Türkçe
 - Çoklu dil (varsayılan İngilizce, CLI ile Türkçe)
 - Durum yönetimi `AppState` ile, global durum kaldırıldı
 - I/O işlemleri `app_io.py` modülüne taşındı (log, ayarlar, sunucular, istatistik)
+- Çekirdek fonksiyonlar `core.py`’ye taşındı (`ping_host`, `check_port`); basit politikalar
 
 Gereksinimler
 
