@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.5 — 2025-11-20
+
+- Added file locking to prevent race conditions during writes
+- Locks applied to log appends and atomic saves
+- Cross-platform fallback when `fcntl` is unavailable
+- Version bumped to 2.1.5
+
 ## v2.1.4 — 2025-11-20
 
 - Implemented atomic file writes using temp + `os.replace`

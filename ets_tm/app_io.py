@@ -3,6 +3,12 @@ import json
 import logging
 import csv
 import io
+import time
+try:
+    import fcntl  # type: ignore
+    HAS_FCNTL = True
+except Exception:
+    HAS_FCNTL = False
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
 import tempfile
@@ -147,21 +153,60 @@ def get_logger(path: str, max_bytes: int = 1048576, backup_count: int = 3) -> lo
     return logger
 
 
+def _acquire_lock(path: str):
+    lock_path = path + ".lock"
+    if HAS_FCNTL:
+        f = open(lock_path, "w")
+        fcntl.flock(f, fcntl.LOCK_EX)
+        return ("fcntl", f, lock_path)
+    while True:
+        try:
+            fd = os.open(lock_path, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+            return ("excl", fd, lock_path)
+        except FileExistsError:
+            time.sleep(0.05)
+
+
+def _release_lock(tok) -> None:
+    kind, obj, lock_path = tok
+    if kind == "fcntl":
+        try:
+            fcntl.flock(obj, fcntl.LOCK_UN)
+        finally:
+            obj.close()
+    else:
+        try:
+            os.close(obj)
+        finally:
+            try:
+                os.unlink(lock_path)
+            except Exception:
+                pass
+
+
 def append_log_line(path: str, line: str, ensure_header: bool = True) -> None:
-    if ensure_header:
-        ensure_log_header(path)
-    logger = get_logger(path)
-    if line.endswith("\n"):
-        line = line[:-1]
-    logger.info(line)
+    tok = _acquire_lock(path)
+    try:
+        if ensure_header:
+            ensure_log_header(path)
+        logger = get_logger(path)
+        if line.endswith("\n"):
+            line = line[:-1]
+        logger.info(line)
+    finally:
+        _release_lock(tok)
 
 
 def append_log_row(path: str, row: List[str], ensure_header: bool = True) -> None:
-    if ensure_header:
-        ensure_log_header(path)
-    buf = io.StringIO()
-    writer = csv.writer(buf, delimiter=";", quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
-    writer.writerow(row)
-    line = buf.getvalue().rstrip("\n")
-    logger = get_logger(path)
-    logger.info(line)
+    tok = _acquire_lock(path)
+    try:
+        if ensure_header:
+            ensure_log_header(path)
+        buf = io.StringIO()
+        writer = csv.writer(buf, delimiter=";", quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+        writer.writerow(row)
+        line = buf.getvalue().rstrip("\n")
+        logger = get_logger(path)
+        logger.info(line)
+    finally:
+        _release_lock(tok)
