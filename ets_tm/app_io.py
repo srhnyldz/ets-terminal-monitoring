@@ -11,6 +11,7 @@ except Exception:
     HAS_FCNTL = False
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
+from datetime import datetime, timezone
 import tempfile
 
 
@@ -211,3 +212,89 @@ def append_log_row(path: str, row: List[str], ensure_header: bool = True) -> Non
         logger.info(line)
     finally:
         _release_lock(tok)
+
+
+def read_log_summary(path: str, max_backups: int = 3, now_ts: Optional[float] = None) -> Dict[str, Dict[str, Optional[float]]]:
+    files = [path] + [f"{path}.{i}" for i in range(1, max_backups + 1)]
+    now = datetime.fromtimestamp(now_ts, tz=timezone.utc) if now_ts else datetime.now(tz=timezone.utc)
+    def _init_bucket():
+        return {
+            "up": 0,
+            "down": 0,
+            "avg_ping": None,
+            "uptime": None,
+        }
+    one_h = _init_bucket()
+    day = _init_bucket()
+
+    def _acc(bucket: Dict[str, Optional[float]], status: str, ping_val: Optional[float]):
+        if status == "UP":
+            bucket["up"] = int(bucket.get("up", 0)) + 1
+        elif status == "DOWN":
+            bucket["down"] = int(bucket.get("down", 0)) + 1
+        # avg ping
+        count_key = "_ping_count"
+        sum_key = "_ping_sum"
+        c = int(bucket.get(count_key, 0))
+        s = float(bucket.get(sum_key, 0.0))
+        if ping_val is not None:
+            c += 1
+            s += ping_val
+        bucket[count_key] = c
+        bucket[sum_key] = s
+
+    for fp in files:
+        if not os.path.exists(fp):
+            continue
+        try:
+            with open(fp, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line or line.startswith("date;"):
+                        continue
+                    parts = line.split(";")
+                    if len(parts) < 8:
+                        continue
+                    dt_str = parts[0]
+                    status = parts[6]
+                    ping_str = parts[7]
+                    try:
+                        dt = datetime.fromisoformat(dt_str)
+                        if dt.tzinfo is None:
+                            dt = dt.replace(tzinfo=timezone.utc)
+                    except Exception:
+                        continue
+                    age = (now - dt).total_seconds()
+                    ping_val = None
+                    try:
+                        if ping_str and ping_str != "-":
+                            ping_val = float(ping_str)
+                    except Exception:
+                        ping_val = None
+                    if age <= 3600:
+                        _acc(one_h, status, ping_val)
+                    if age <= 86400:
+                        _acc(day, status, ping_val)
+        except Exception:
+            continue
+
+    def _finalize(bucket: Dict[str, Optional[float]]):
+        up = int(bucket.get("up", 0))
+        down = int(bucket.get("down", 0))
+        total = up + down
+        if total > 0:
+            bucket["uptime"] = (up / total) * 100.0
+        else:
+            bucket["uptime"] = None
+        c = int(bucket.get("_ping_count", 0))
+        s = float(bucket.get("_ping_sum", 0.0))
+        bucket["avg_ping"] = (s / c) if c > 0 else None
+        bucket.pop("_ping_count", None)
+        bucket.pop("_ping_sum", None)
+
+    _finalize(one_h)
+    _finalize(day)
+    return {
+        "1h": one_h,
+        "24h": day,
+    }

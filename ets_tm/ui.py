@@ -21,6 +21,7 @@ def build_table(
     server_key: Callable[[Dict[str, Any]], str],
     update_and_get_uptime: Callable[[Dict[str, Dict[str, int]], str, bool], Optional[float]],
     log_status: Callable[[Dict[str, Any], bool, Optional[float], Optional[float]], None],
+    get_summary_metrics: Callable[[], Dict[str, Any]],
     app_name: str,
     app_url: str,
 ) -> Table:
@@ -79,8 +80,29 @@ def build_table(
         f" | {t('filter.caption')}: {app_state.current_group_filter}" if getattr(app_state, "current_group_filter", None) else ""
     )
     sort_note = f" | {t('table.sort')}: {sort_key} {t('sort.desc') if sort_desc else t('sort.asc')}"
+    metrics = get_summary_metrics()
+    m1 = metrics.get("1h", {})
+    m2 = metrics.get("24h", {})
+    def _fmt(v, suf=""):
+        return "-" if v is None else (f"{v:.1f}{suf}" if isinstance(v, float) else str(v))
+    pref = f"{t('summary.title')}: "
+    label_w = max(len(t('summary.1h')), len(t('summary.24h')))
+    def _pad(x, w):
+        return f"{x:>{w}}"
+    def _fmt_int(v):
+        return _pad("-" if v is None else str(v), 4)
+    def _fmt_avg(v):
+        return _pad("-" if v is None else f"{v:.1f} ms", 9)
+    def _fmt_pct(v):
+        return _pad("-" if v is None else f"{v:.1f} %", 8)
+    line1 = (
+        f"{pref}{t('summary.1h'):<{label_w}} | {t('summary.up')} {_fmt_int(m1.get('up'))} | {t('summary.down')} {_fmt_int(m1.get('down'))} | {t('summary.avg_ping')} {_fmt_avg(m1.get('avg_ping'))} | {t('summary.uptime')} {_fmt_pct(m1.get('uptime'))}"
+    )
+    line2 = (
+        f"{' ' * len(pref)}{t('summary.24h'):<{label_w}} | {t('summary.up')} {_fmt_int(m2.get('up'))} | {t('summary.down')} {_fmt_int(m2.get('down'))} | {t('summary.avg_ping')} {_fmt_avg(m2.get('avg_ping'))} | {t('summary.uptime')} {_fmt_pct(m2.get('uptime'))}"
+    )
     table.caption = (
-        f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}, > {t('shortcut.next_sort')}, < {t('shortcut.prev_sort')}, r {t('shortcut.toggle_sort_order')}{filter_note}{page_note}{sort_note}"
+        f"{line1}\n{line2}\n{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}, > {t('shortcut.next_sort')}, < {t('shortcut.prev_sort')}, r {t('shortcut.toggle_sort_order')}{filter_note}{page_note}{sort_note}"
     )
 
     async def _check_one(s):

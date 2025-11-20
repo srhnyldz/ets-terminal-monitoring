@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.2.5 — 2025-11-21
+
+- Summary metrics in monitor caption
+  - 1h/24h windows: up/down counts, average ping, uptime %
+  - Aligned two-line comparison for 1h vs 24h
+  - Shortcuts moved to a new caption line for readability
+- Version bumped to 2.2.5
+
 ## v2.2.4 — 2025-11-20
 
 - Column-based sorting in table

@@ -30,6 +30,13 @@ def t(k, **kwargs):
         "status.online": "ONLINE",
         "status.offline": "OFFLINE",
         "filter.caption": "filter",
+        "summary.title": "Summary",
+        "summary.1h": "1h",
+        "summary.24h": "24h",
+        "summary.up": "up",
+        "summary.down": "down",
+        "summary.avg_ping": "avg",
+        "summary.uptime": "uptime",
     }.get(k, k)
 
 
@@ -53,6 +60,13 @@ def log_status(srv, is_up, rtt, uptime):
     pass
 
 
+def get_summary_metrics():
+    return {
+        "1h": {"up": 1, "down": 0, "avg_ping": 10.0, "uptime": 100.0},
+        "24h": {"up": 1, "down": 0, "avg_ping": 10.0, "uptime": 100.0},
+    }
+
+
 class TestUI(unittest.TestCase):
     def test_build_table_structure(self):
         servers = [{"name": "srv1", "host": "1.1.1.1", "group": "General", "service": "HTTP", "port": 80}]
@@ -72,6 +86,7 @@ class TestUI(unittest.TestCase):
             server_key,
             update_and_get_uptime,
             log_status,
+            get_summary_metrics,
             "ETS TM",
             "example.com",
         )

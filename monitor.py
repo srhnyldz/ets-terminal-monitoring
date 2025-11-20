@@ -247,6 +247,12 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
 def ensure_log_header() -> None:
     app_io.ensure_log_header(LOG_FILE)
 
+def get_summary_metrics() -> Dict[str, Any]:
+    try:
+        return app_io.read_log_summary(LOG_FILE)
+    except Exception:
+        return {"1h": {"up": 0, "down": 0, "avg_ping": None, "uptime": None}, "24h": {"up": 0, "down": 0, "avg_ping": None, "uptime": None}}
+
 
 # ------- Tablo Oluşturma ------- #
 
@@ -264,6 +270,7 @@ def bootstrap() -> Dict[str, Any]:
         "server_key": server_key,
         "update_and_get_uptime": update_and_get_uptime,
         "log_status": log_status,
+        "get_summary_metrics": get_summary_metrics,
         "app_name": APP_NAME,
         "app_url": APP_URL,
         "ui_build_table": ui_build_table,
@@ -288,6 +295,7 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
         deps["server_key"],
         deps["update_and_get_uptime"],
         deps["log_status"],
+        deps["get_summary_metrics"],
         deps["app_name"],
         deps["app_url"],
     )

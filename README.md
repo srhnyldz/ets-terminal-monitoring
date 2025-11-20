@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.2.3
+- Version: v2.2.5
 
 Features
 
@@ -26,7 +26,8 @@ Features
 - Rate limiting via `max_concurrent_checks` setting
 - Backoff/retry for transient failures (`retry_attempts`, `retry_base_delay`)
 - Table pagination with shortcuts ([ and ])
- - Column-based sorting with shortcuts (<, >, r)
+- Column-based sorting with shortcuts (<, >, r)
+- Summary metrics in caption (1h/24h: up/down, avg ping, uptime %) with aligned comparison; shortcuts shown on the next line
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -113,7 +114,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.2.3
+- Sürüm: v2.2.5
 
 Özellikler
 
@@ -135,8 +136,9 @@ Türkçe
   - `asyncio` ile ping/port kontrollerinde eşzamanlılık
   - Eşzamanlılık için oran kısıtlama (`max_concurrent_checks` ayarı)
   - Geçici hatalarda backoff/yeniden deneme (`retry_attempts`, `retry_base_delay`)
-  - Büyük listeler için tablo sayfalama (kısayollar: [ ve ])
-  - Sütun bazlı sıralama (kısayollar: <, >, r)
+- Büyük listeler için tablo sayfalama (kısayollar: [ ve ])
+- Sütun bazlı sıralama (kısayollar: <, >, r)
+- Özet metrikler caption’da (1s/24s: up/down, ort ping, uptime %) hizalı karşılaştırma ile; kısayollar bir alt satırda gösterilir
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)
