@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.4.3"
+APP_VERSION = "2.5.0"
 
 class AppState:
     def __init__(self) -> None:
@@ -78,6 +78,36 @@ def validate_server_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         except Exception:
             return d
     return d
+
+def _is_valid_ipv4(s: str) -> bool:
+    parts = s.split(".")
+    if len(parts) != 4:
+        return False
+    try:
+        vals = [int(p) for p in parts]
+    except Exception:
+        return False
+    for v in vals:
+        if v < 0 or v > 255:
+            return False
+    return True
+
+def _is_valid_hostname(s: str) -> bool:
+    if len(s) > 253:
+        return False
+    labels = s.split(".")
+    for lbl in labels:
+        if not lbl or len(lbl) > 63:
+            return False
+        if lbl[0] == '-' or lbl[-1] == '-':
+            return False
+        for ch in lbl:
+            if not (ch.isalnum() or ch == '-'):
+                return False
+    return True
+
+def _is_valid_host_or_ip(s: str) -> bool:
+    return _is_valid_ipv4(s) or _is_valid_hostname(s)
 
 def validate_settings_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     if HAS_PYDANTIC:
@@ -326,6 +356,9 @@ def add_server_interactive():
         if not host:
             console.print(f"[red]{t('error.host_required')}[/red]")
             continue
+        if not _is_valid_host_or_ip(host):
+            console.print(f"[red]{t('error.host_invalid')}[/red]")
+            continue
 
         group = input(t("add.input_group")).strip()
         if not group:
@@ -471,7 +504,10 @@ def edit_or_delete_server():
 
     new_host = input(t("edit.input_host_default", current=srv.get('host'))).strip()
     if new_host:
-        srv["host"] = new_host
+        if _is_valid_host_or_ip(new_host):
+            srv["host"] = new_host
+        else:
+            console.print(f"[red]{t('error.host_invalid')}[/red]")
 
     new_group = input(t("edit.input_group_default", current=srv.get('group', t('general.default_group')))).strip()
     if new_group:

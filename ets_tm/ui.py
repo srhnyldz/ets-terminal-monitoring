@@ -9,7 +9,7 @@ from rich import box
 def build_table(
     servers: List[Dict[str, Any]],
     stats: Dict[str, Dict[str, int]],
-    t: Callable[[str], str],
+    t: Callable[..., str],
     app_state: Any,
     ping_host: Callable[[str], Optional[float]],
     check_port: Callable[[str, int, float], bool],

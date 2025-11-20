@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.4.3
+- Version: v2.5.0
 
 Features
 
@@ -33,7 +33,8 @@ Features
 - Log migration tool to standardize headers in `monitor.log` and rotated files
 - Table search (`/` to set, `x` to clear) and service-based filter (`h` to set, `z` to clear) with indicators in caption
  - Group management menu: list groups, rename, delete, and bulk move servers between groups
- - Language management: add new language, check missing keys, list languages
+- Language management: add new language, check missing keys, list languages
+ - Input validation for Host/IP and port (safer add/edit flows)
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -126,7 +127,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.4.3
+- Sürüm: v2.5.0
 
 Özellikler
 
@@ -156,7 +157,8 @@ Türkçe
 - Log migrasyon aracı: `monitor.log` ve rotasyon dosyalarında Türkçe başlığı İngilizceye çevirir
 - Tablo arama (`/` ayarla, `x` temizle) ve servise göre filtre (`h` ayarla, `z` temizle); caption’da göstergeler
  - Grup yönetimi menüsü: grupları listele, yeniden adlandır, sil ve sunucuları toplu taşı
- - Dil yönetimi: yeni dil ekle, eksik anahtarları kontrol et, dilleri listele
+- Dil yönetimi: yeni dil ekle, eksik anahtarları kontrol et, dilleri listele
+ - Host/IP ve port için girdi doğrulama (daha güvenli ekleme/düzenleme akışları)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

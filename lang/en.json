@@ -126,6 +126,7 @@
   "error.name_required": "Name cannot be empty.",
   "add.input_host": "Host / IP (e.g. 10.10.1.1 or domain): ",
   "error.host_required": "Host/IP cannot be empty.",
+  "error.host_invalid": "Invalid host/IP. Enter a valid hostname or IPv4.",
   "add.input_group": "Group (Web, Devices, DB etc. — empty = 'General'): ",
   "add.select_service": "Select service type:",
   "add.input_service_choice": "Choice (1-9): ",

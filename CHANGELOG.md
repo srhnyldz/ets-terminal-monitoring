@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.5.0 — 2025-11-21
+
+- Input validation for Host/IP and port
+  - IPv4 dotted-quad check and RFC-like hostname label rules
+  - Invalid host/IP rejected in add/edit flows
+- Version bumped to 2.5.0
+
 ## v2.4.0 — 2025-11-21
 
 - Rich theme improvements in monitor table

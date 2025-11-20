@@ -126,6 +126,7 @@
   "error.name_required": "Ad boş olamaz.",
   "add.input_host": "Host / IP (ör. 10.10.1.1 veya domain): ",
   "error.host_required": "Host/IP boş olamaz.",
+  "error.host_invalid": "Geçersiz Host/IP. Geçerli bir hostname ya da IPv4 girin.",
   "add.input_group": "Grup (Web, Cihazlar, DB vb. — boş = 'Genel'): ",
   "add.select_service": "Servis tipi seçin:",
   "add.input_service_choice": "Seçim (1-9): ",
