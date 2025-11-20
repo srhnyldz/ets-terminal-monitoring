@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.1.9
+- Version: v2.1.10
 
 Features
 
@@ -49,6 +49,14 @@ Usage
   - `python monitor.py --lang tr` or `python monitor.py tr`
 - Show version
   - `python monitor.py --version`
+
+Quick Notes
+
+- Start: `python monitor.py`
+- Language: `--lang tr` or positional `tr`
+- Version: `--version`
+- CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`
+- Tests: `python -m pytest -q` (install `pytest`)
  - CLI flags
    - `python monitor.py --add` (add server flow)
    - `python monitor.py --list` (list saved servers)
@@ -100,7 +108,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.9
+- Sürüm: v2.1.10
 
 Özellikler
 
@@ -190,3 +198,10 @@ Geliştirme
 - Opsiyonel: statik tip analizi (mypy)
   - `python -m pip install mypy`
   - `mypy . --config-file mypy.ini`
+Kısa Notlar
+
+- Başlat: `python monitor.py`
+- Dil: `--lang tr` veya konumsal `tr`
+- Sürüm: `--version`
+- CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`
+- Testler: `python -m pytest -q` (`pytest` kurulu olmalı)

@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.10 — 2025-11-20
+
+- Documentation updates
+  - README: added concise Quick Notes (EN/TR)
+  - CHANGELOG: ensured newest version at the top
+- Version bumped to 2.1.10
+
 ## v2.1.9 — 2025-11-20
 
 - Internationalization improvements
