@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.0 — 2025-11-20
+
+- Concurrency using `asyncio` for ping/port checks in UI
+- Faster updates while preserving existing behavior and logging
+- Version bumped to 2.2.0
+
 ## v2.1.10 — 2025-11-20
 
 - Documentation updates

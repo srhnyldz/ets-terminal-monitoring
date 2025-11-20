@@ -1,4 +1,5 @@
 from typing import Any, Dict, List, Optional, Callable
+import asyncio
 from datetime import datetime
 from rich.table import Table
 from rich import box
@@ -51,7 +52,20 @@ def build_table(
         f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}{filter_note}"
     )
 
-    for srv in servers:
+    async def _check_one(s):
+        host = s.get("host", "")
+        port = int(s.get("port", 0))
+        ping_task = asyncio.to_thread(ping_host, host)
+        port_task = asyncio.to_thread(check_port, host, port, port_timeout) if port > 0 else asyncio.to_thread(lambda: False)
+        rtt, port_ok = await asyncio.gather(ping_task, port_task)
+        return (s, rtt, bool(port_ok))
+
+    async def _gather_all(items):
+        return await asyncio.gather(*(_check_one(s) for s in items))
+
+    results = asyncio.run(_gather_all(servers))
+
+    for srv, rtt, port_ok in results:
         name = srv.get("name", "")
         host = srv.get("host", "")
         group = srv.get("group", t("general.default_group"))
@@ -61,10 +75,7 @@ def build_table(
         service = service_name if _svc == service_key else _svc
         port = int(srv.get("port", 0))
 
-        rtt = ping_host(host)
-        port_ok = check_port(host, port, port_timeout) if port > 0 else False
         is_up = port_ok
-
         key = server_key(srv)
         uptime = update_and_get_uptime(stats, key, is_up)
         log_status(srv, is_up, rtt, uptime)
