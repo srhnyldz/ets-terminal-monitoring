@@ -21,6 +21,7 @@ servers.txt
 server_stats.json
 monitor.log
 README.md
+ROADMAP.md
 
 # Logs
 *.log
