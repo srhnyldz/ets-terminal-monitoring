@@ -8,6 +8,13 @@
   - Shortcuts moved to a new caption line for readability
 - Version bumped to 2.2.5
 
+## v2.3.0 — 2025-11-21
+
+- Import/Export commands for server list
+  - Export to JSON/CSV: `--export-json`, `--export-csv`
+  - Import from JSON/CSV (replace list): `--import-json`, `--import-csv`
+- Version bumped to 2.3.0
+
 ## v2.2.4 — 2025-11-20
 
 - Column-based sorting in table

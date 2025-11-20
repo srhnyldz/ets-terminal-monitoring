@@ -298,3 +298,85 @@ def read_log_summary(path: str, max_backups: int = 3, now_ts: Optional[float] = 
         "1h": one_h,
         "24h": day,
     }
+
+
+def export_servers_json(path: str, servers: List[Dict[str, Any]]) -> None:
+    content = json.dumps(servers, ensure_ascii=False, indent=2)
+    _atomic_write_text(path, content)
+
+
+def export_servers_csv(path: str, servers: List[Dict[str, Any]]) -> None:
+    header = ["name","host","group","service","port"]
+    buf = io.StringIO()
+    writer = csv.writer(buf, delimiter=",", quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+    writer.writerow(header)
+    for s in servers:
+        writer.writerow([
+            s.get("name",""),
+            s.get("host",""),
+            s.get("group",""),
+            s.get("service",""),
+            int(s.get("port",0)) or 0,
+        ])
+    _atomic_write_text(path, buf.getvalue())
+
+
+def import_servers_json(path: str, validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            data = [data]
+        out: List[Dict[str, Any]] = []
+        for obj in data:
+            if not isinstance(obj, dict):
+                continue
+            out.append(validator(obj) if validator else obj)
+        return out
+    except Exception:
+        # line-delimited JSON fallback
+        res: List[Dict[str, Any]] = []
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        obj = json.loads(line)
+                        res.append(validator(obj) if validator else obj)
+                    except Exception:
+                        pass
+        except Exception:
+            return []
+        return res
+
+
+def import_servers_csv(path: str, validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
+    if not os.path.exists(path):
+        return []
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            rows = list(csv.reader(f, delimiter=","))
+        if not rows:
+            return []
+        header = [c.strip().lower() for c in rows[0]]
+        idx = {name: i for i, name in enumerate(header)}
+        out: List[Dict[str, Any]] = []
+        for r in rows[1:]:
+            def _get(k):
+                j = idx.get(k)
+                return r[j].strip() if j is not None and j < len(r) else ""
+            obj: Dict[str, Any] = {
+                "name": _get("name"),
+                "host": _get("host"),
+                "group": _get("group"),
+                "service": _get("service") or "Custom Port",
+                "port": int(_get("port") or "0") or 0,
+            }
+            out.append(validator(obj) if validator else obj)
+        return out
+    except Exception:
+        return []

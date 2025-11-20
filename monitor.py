@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.2.4"
+APP_VERSION = "2.3.0"
 
 class AppState:
     def __init__(self) -> None:
@@ -816,6 +816,10 @@ if __name__ == "__main__":
     parser.add_argument("--edit", action="store_true", help="open edit/delete flow")
     parser.add_argument("--group-filter", dest="group_filter", help="set group filter and start monitoring")
     parser.add_argument("--clear-filter", dest="clear_filter", action="store_true", help="clear group filter and start monitoring")
+    parser.add_argument("--export-json", dest="export_json", help="export servers to JSON file")
+    parser.add_argument("--export-csv", dest="export_csv", help="export servers to CSV file")
+    parser.add_argument("--import-json", dest="import_json", help="import servers from JSON file (replaces list)")
+    parser.add_argument("--import-csv", dest="import_csv", help="import servers from CSV file (replaces list)")
     args = parser.parse_args()
     if args.version:
         print(f"{APP_NAME} v{APP_VERSION}")
@@ -823,7 +827,35 @@ if __name__ == "__main__":
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
     DEPS = bootstrap()
-    if args.add:
+    if args.export_json:
+        servers = load_servers()
+        app_io.export_servers_json(args.export_json, servers)
+        print_header()
+        console.print(f"[green]Exported[/green] -> {args.export_json}")
+    elif args.export_csv:
+        servers = load_servers()
+        app_io.export_servers_csv(args.export_csv, servers)
+        print_header()
+        console.print(f"[green]Exported[/green] -> {args.export_csv}")
+    elif args.import_json:
+        incoming = app_io.import_servers_json(args.import_json, validate_server_dict)
+        if incoming:
+            save_servers(incoming)
+            print_header()
+            console.print(f"[green]Imported[/green] <- {args.import_json}")
+        else:
+            print_header()
+            console.print(f"[red]No servers imported[/red]")
+    elif args.import_csv:
+        incoming = app_io.import_servers_csv(args.import_csv, validate_server_dict)
+        if incoming:
+            save_servers(incoming)
+            print_header()
+            console.print(f"[green]Imported[/green] <- {args.import_csv}")
+        else:
+            print_header()
+            console.print(f"[red]No servers imported[/red]")
+    elif args.add:
         add_server_interactive()
     elif args.list_servers:
         show_servers()

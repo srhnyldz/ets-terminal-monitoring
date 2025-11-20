@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.2.5
+- Version: v2.3.0
 
 Features
 
@@ -28,6 +28,7 @@ Features
 - Table pagination with shortcuts ([ and ])
 - Column-based sorting with shortcuts (<, >, r)
 - Summary metrics in caption (1h/24h: up/down, avg ping, uptime %) with aligned comparison; shortcuts shown on the next line
+- Import/Export server list via CLI (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -62,6 +63,7 @@ Quick Notes
 - Language: `--lang tr` or positional `tr`
 - Version: `--version`
 - CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`
+- CLI: `--export-json out.json`, `--export-csv out.csv`, `--import-json in.json`, `--import-csv in.csv`
 - Tests: `python -m pytest -q` (install `pytest`)
  - CLI flags
    - `python monitor.py --add` (add server flow)
@@ -114,7 +116,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.2.5
+- Sürüm: v2.3.0
 
 Özellikler
 
@@ -139,6 +141,7 @@ Türkçe
 - Büyük listeler için tablo sayfalama (kısayollar: [ ve ])
 - Sütun bazlı sıralama (kısayollar: <, >, r)
 - Özet metrikler caption’da (1s/24s: up/down, ort ping, uptime %) hizalı karşılaştırma ile; kısayollar bir alt satırda gösterilir
+- Sunucu listesini CLI ile içe/dışa aktar (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)
@@ -173,6 +176,10 @@ Kullanım
   - `python monitor.py --edit` (düzenle/sil akışı)
   - `python monitor.py --group-filter Web` (grup filtresi ayarla ve izlemeyi başlat)
   - `python monitor.py --clear-filter` (grup filtresini temizle ve izlemeyi başlat)
+  - `python monitor.py --export-json out.json` (sunucuları JSON’a aktar)
+  - `python monitor.py --export-csv out.csv` (sunucuları CSV’ye aktar)
+  - `python monitor.py --import-json in.json` (sunucuları JSON’dan içe al; listeyi değiştirir)
+  - `python monitor.py --import-csv in.csv` (sunucuları CSV’den içe al; listeyi değiştirir)
 
 Ayarlar
 
