@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.1.0 — 2025-11-20
+
+- Added pre-commit configuration with `black` and `ruff`
+- Documented setup and usage in README Development section
+- Version bumped to 2.1.0
+
 ## v2.0.7 — 2025-11-20
 
 - Documentation updates and migration guidance in README

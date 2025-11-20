@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.7
+- Version: v2.1.0
 
 Features
 
@@ -73,11 +73,15 @@ Development
 
 - Run with virtualenv active
 - All runtime files are saved relative to the application directory: `monitor.py:40-45`
+- Optional: enable pre-commit hooks (format/lint)
+  - `python -m pip install pre-commit ruff black`
+  - `pre-commit install`
+  - `pre-commit run --all-files`
 
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.7
+- Sürüm: v2.1.0
 
 Özellikler
 
@@ -147,3 +151,7 @@ Geliştirme
 
 - Sanal ortam aktifken çalıştırın
 - Tüm çalışma dosyaları uygulama dizinine yazılır: `monitor.py:40-45`
+- Opsiyonel: pre-commit kancalarını etkinleştir (format/lint)
+  - `python -m pip install pre-commit ruff black`
+  - `pre-commit install`
+  - `pre-commit run --all-files`
