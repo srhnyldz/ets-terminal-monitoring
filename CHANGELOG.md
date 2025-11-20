@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.2 — 2025-11-20
+
+- Integrated Python `logging` with `RotatingFileHandler` for `monitor.log`
+- `append_log_line` now writes via logger with rotation
+- Ensured header handling remains intact
+- Version bumped to 2.1.2
+
 ## v2.1.1 — 2025-11-20
 
 - Added static type analysis setup via `mypy` (`mypy.ini`)

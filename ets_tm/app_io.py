@@ -1,5 +1,7 @@
 import os
 import json
+import logging
+from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
 
 
@@ -113,8 +115,27 @@ def ensure_log_header(path: str) -> None:
         pass
 
 
+_LOGGERS: Dict[str, logging.Logger] = {}
+
+
+def get_logger(path: str, max_bytes: int = 1048576, backup_count: int = 3) -> logging.Logger:
+    logger = _LOGGERS.get(path)
+    if logger:
+        return logger
+    logger = logging.getLogger(f"ets_tm.log.{path}")
+    logger.setLevel(logging.INFO)
+    handler = RotatingFileHandler(path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
+    handler.setFormatter(logging.Formatter("%(message)s"))
+    logger.addHandler(handler)
+    logger.propagate = False
+    _LOGGERS[path] = logger
+    return logger
+
+
 def append_log_line(path: str, line: str, ensure_header: bool = True) -> None:
     if ensure_header:
         ensure_log_header(path)
-    with open(path, "a", encoding="utf-8") as f:
-        f.write(line)
+    logger = get_logger(path)
+    if line.endswith("\n"):
+        line = line[:-1]
+    logger.info(line)
