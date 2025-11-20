@@ -30,6 +30,8 @@ def t(k, **kwargs):
         "status.online": "ONLINE",
         "status.offline": "OFFLINE",
         "filter.caption": "filter",
+        "search.caption": "search",
+        "service_filter.caption": "service",
         "summary.title": "Summary",
         "summary.1h": "1h",
         "summary.24h": "24h",
@@ -37,6 +39,10 @@ def t(k, **kwargs):
         "summary.down": "down",
         "summary.avg_ping": "avg",
         "summary.uptime": "uptime",
+        "shortcut.search": "search",
+        "shortcut.clear_search": "clear search",
+        "shortcut.service_filter": "service filter",
+        "shortcut.clear_service_filter": "clear service filter",
     }.get(k, k)
 
 

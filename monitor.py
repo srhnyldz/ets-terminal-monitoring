@@ -31,12 +31,14 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.4.0"
+APP_VERSION = "2.4.1"
 
 class AppState:
     def __init__(self) -> None:
         self.last_action_note: str = ""
         self.current_group_filter: Optional[str] = None
+        self.current_search_query: Optional[str] = None
+        self.current_service_filter: Optional[str] = None
         self.current_page: int = 1
         self.current_sort_key: str = "name"
         self.sort_desc: bool = False
@@ -702,6 +704,18 @@ def monitor_servers():
                     if key == "g":
                         next_action = "filter"
                         break
+                    if key == "/":
+                        next_action = "search"
+                        break
+                    if key == "x":
+                        next_action = "clear_search"
+                        break
+                    if key == "h":
+                        next_action = "service_filter"
+                        break
+                    if key == "z":
+                        next_action = "clear_service_filter"
+                        break
                     if key == "a":
                         next_action = "clear_filter"
                         break
@@ -755,6 +769,26 @@ def monitor_servers():
             if grp:
                 app_state.current_group_filter = grp
                 app_state.last_action_note = f"{t('note.filter_set')} {grp}"
+            monitor_servers()
+        elif next_action == "search":
+            q = input(t("search.input_query")).strip()
+            if q:
+                app_state.current_search_query = q
+                app_state.last_action_note = f"{t('note.search_set')} {q}"
+            monitor_servers()
+        elif next_action == "clear_search":
+            app_state.current_search_query = None
+            app_state.last_action_note = t('note.search_cleared')
+            monitor_servers()
+        elif next_action == "service_filter":
+            svc = input(t("service_filter.input_service")).strip()
+            if svc:
+                app_state.current_service_filter = svc
+                app_state.last_action_note = f"{t('note.service_filter_set')} {svc}"
+            monitor_servers()
+        elif next_action == "clear_service_filter":
+            app_state.current_service_filter = None
+            app_state.last_action_note = t('note.service_filter_cleared')
             monitor_servers()
         elif next_action == "clear_filter":
             app_state.current_group_filter = None

@@ -56,6 +56,20 @@ def build_table(
         servers = [
             s for s in servers if s.get("group", t("general.default_group")) == app_state.current_group_filter
         ]
+    q = getattr(app_state, "current_search_query", None)
+    if q:
+        ql = q.lower()
+        def _hit(s: Dict[str, Any]) -> bool:
+            return (
+                ql in str(s.get("group", t("general.default_group"))).lower()
+                or ql in str(s.get("name", "")).lower()
+                or ql in str(s.get("host", "")).lower()
+                or ql in str(s.get("service", "")).lower()
+            )
+        servers = [s for s in servers if _hit(s)]
+    svc_filter = getattr(app_state, "current_service_filter", None)
+    if svc_filter:
+        servers = [s for s in servers if s.get("service", "") == svc_filter]
     sort_key = getattr(app_state, "current_sort_key", "name")
     sort_desc = bool(getattr(app_state, "sort_desc", False))
     def _srv_sort_value(s: Dict[str, Any]):
@@ -84,6 +98,12 @@ def build_table(
     filter_note = (
         f" | {t('filter.caption')}: {app_state.current_group_filter}" if getattr(app_state, "current_group_filter", None) else ""
     )
+    search_note = (
+        f" | {t('search.caption')}: {app_state.current_search_query}" if getattr(app_state, "current_search_query", None) else ""
+    )
+    svc_note = (
+        f" | {t('service_filter.caption')}: {app_state.current_service_filter}" if getattr(app_state, "current_service_filter", None) else ""
+    )
     sort_note = f" | {t('table.sort')}: {sort_key} {t('sort.desc') if sort_desc else t('sort.asc')}"
     metrics = get_summary_metrics()
     m1 = metrics.get("1h", {})
@@ -107,7 +127,7 @@ def build_table(
         f"{' ' * len(pref)}{t('summary.24h'):<{label_w}} | {t('summary.up')} {_fmt_int(m2.get('up'))} | {t('summary.down')} {_fmt_int(m2.get('down'))} | {t('summary.avg_ping')} {_fmt_avg(m2.get('avg_ping'))} | {t('summary.uptime')} {_fmt_pct(m2.get('uptime'))}"
     )
     table.caption = (
-        f"{line1}\n{line2}\n{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}, > {t('shortcut.next_sort')}, < {t('shortcut.prev_sort')}, r {t('shortcut.toggle_sort_order')}{filter_note}{page_note}{sort_note}"
+        f"{line1}\n{line2}\n{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, / {t('shortcut.search')}, x {t('shortcut.clear_search')}, h {t('shortcut.service_filter')}, z {t('shortcut.clear_service_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}, > {t('shortcut.next_sort')}, < {t('shortcut.prev_sort')}, r {t('shortcut.toggle_sort_order')}{filter_note}{search_note}{svc_note}{page_note}{sort_note}"
     )
 
     async def _check_one(s):

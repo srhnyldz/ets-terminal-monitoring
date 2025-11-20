@@ -7,6 +7,14 @@
   - Bold cyan headers; zebra row styles; dim captions
   - Conditional coloring for ping and uptime cells
 
+## v2.4.1 — 2025-11-21
+
+- Table search and advanced filtering
+  - `/` set search query across group/name/host/service, `x` clear
+  - `h` set service filter, `z` clear service filter
+  - Filter indicators shown in caption
+- Version bumped to 2.4.1
+
 ## v2.3.2 — 2025-11-21
 
 - Log migration tool to standardize headers
