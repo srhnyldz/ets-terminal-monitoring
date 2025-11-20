@@ -13,6 +13,7 @@ def build_table(
     ping_host: Callable[[str], Optional[float]],
     check_port: Callable[[str, int, float], bool],
     port_timeout: float,
+    max_concurrent: int,
     server_key: Callable[[Dict[str, Any]], str],
     update_and_get_uptime: Callable[[Dict[str, Dict[str, int]], str, bool], Optional[float]],
     log_status: Callable[[Dict[str, Any], bool, Optional[float], Optional[float]], None],
@@ -60,10 +61,15 @@ def build_table(
         rtt, port_ok = await asyncio.gather(ping_task, port_task)
         return (s, rtt, bool(port_ok))
 
-    async def _gather_all(items):
-        return await asyncio.gather(*(_check_one(s) for s in items))
+    async def _gather_batched(items, batch_size: int):
+        out = []
+        for i in range(0, len(items), max(1, batch_size)):
+            batch = items[i:i+batch_size]
+            res = await asyncio.gather(*(_check_one(s) for s in batch))
+            out.extend(res)
+        return out
 
-    results = asyncio.run(_gather_all(servers))
+    results = asyncio.run(_gather_batched(servers, max_concurrent))
 
     for srv, rtt, port_ok in results:
         name = srv.get("name", "")

@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.1 — 2025-11-20
+
+- Rate limiting for concurrent checks via `max_concurrent_checks` setting
+- Settings menu supports configuring max concurrency
+- Version bumped to 2.2.1
+
 ## v2.2.0 — 2025-11-20
 
 - Concurrency using `asyncio` for ping/port checks in UI

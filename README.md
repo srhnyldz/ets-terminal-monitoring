@@ -22,6 +22,8 @@ Features
 - Package modules under `ets_tm/` with cleaned imports
 - Basic unit tests with `unittest` (`tests/`)
 - PyTest skeleton with initial tests (ping/port, i18n)
+- Concurrent ping/port checks via `asyncio`
+- Rate limiting via `max_concurrent_checks` setting
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -68,7 +70,7 @@ Settings
 
 - Open: Main Menu → Settings or press `s` in monitor view
 - Stored in `config.json` at project root
-- Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
+- Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`, `max_concurrent_checks`
 - Code references: `monitor.py:133-146` for settings I/O, `monitor.py:147-153` for runtime values
 
 Shortcuts
@@ -128,6 +130,7 @@ Türkçe
 - Temel birim testleri `unittest` ile (`tests/`)
  - PyTest iskeleti ve ilk testler (ping/port, i18n)
  - `asyncio` ile ping/port kontrollerinde eşzamanlılık
+ - Eşzamanlılık için oran kısıtlama (`max_concurrent_checks` ayarı)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

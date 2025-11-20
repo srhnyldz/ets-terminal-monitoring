@@ -84,6 +84,7 @@ def validate_settings_dict(d: Dict[str, Any]) -> Dict[str, Any]:
                 live_fullscreen: bool = True
                 refresh_per_second: int = 4
                 prefer_system_ping: bool = False
+                max_concurrent_checks: int = 20
 
             m = _SettingsModel(**d)  # type: ignore[arg-type]
             return dict(m.__dict__)
@@ -138,6 +139,7 @@ def load_settings() -> Dict[str, Any]:
         "live_fullscreen": True,
         "refresh_per_second": 4,
         "prefer_system_ping": False,
+        "max_concurrent_checks": 20,
     }
     return app_io.load_settings(SETTINGS_FILE, defaults, validate_settings_dict)
 
@@ -151,6 +153,7 @@ PORT_TIMEOUT = float(settings["port_timeout"])
 LIVE_FULLSCREEN = bool(settings["live_fullscreen"])
 REFRESH_PER_SECOND = int(settings["refresh_per_second"])
 PREFER_SYSTEM_PING = bool(settings["prefer_system_ping"])
+MAX_CONCURRENT_CHECKS = int(settings.get("max_concurrent_checks", 20))
 
 LANG_DIR = str(BASE_DIR / "lang")
 DEFAULT_LANG = "en"
@@ -243,6 +246,7 @@ def bootstrap() -> Dict[str, Any]:
         "ping_host": ping_host,
         "check_port": lambda h, p, to: check_port(h, p, timeout=to),
         "port_timeout": PORT_TIMEOUT,
+        "max_concurrent": MAX_CONCURRENT_CHECKS,
         "server_key": server_key,
         "update_and_get_uptime": update_and_get_uptime,
         "log_status": log_status,
@@ -263,6 +267,7 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
         deps["ping_host"],
         deps["check_port"],
         deps["port_timeout"],
+        deps["max_concurrent"],
         deps["server_key"],
         deps["update_and_get_uptime"],
         deps["log_status"],
@@ -502,9 +507,10 @@ def settings_menu():
         console.print(f"4) {t('settings.fullscreen')}: {t('general.on') if s['live_fullscreen'] else t('general.off')}")
         console.print(f"5) {t('settings.refresh_hz')}: {s['refresh_per_second']}")
         console.print(f"6) {t('settings.prefer_system_ping')}: {t('general.yes') if s['prefer_system_ping'] else t('general.no')}")
-        console.print(f"7) {t('general.back')}")
+        console.print(f"7) {t('settings.max_concurrent_checks')}: {s.get('max_concurrent_checks', 20)}")
+        console.print(f"8) {t('general.back')}")
         choice = input(t("menu.choice_prompt")).strip()
-        if choice in ("7", "", None):
+        if choice in ("8", "", None):
             return
         if choice == "1":
             val = input(t("settings.input_refresh_interval")).strip()
@@ -584,6 +590,21 @@ def settings_menu():
             PREFER_SYSTEM_PING = b
             console.print(f"[green]{t('general.saved')}[/green]\n")
             app_state.last_action_note = t('note.settings_updated')
+        elif choice == "7":
+            val = input(t("settings.input_max_concurrent")).strip()
+            try:
+                v = int(val)
+                if v <= 0:
+                    console.print(f"[red]{t('general.gt_zero')}[/red]")
+                    continue
+                s["max_concurrent_checks"] = v
+                save_settings(s)
+                global MAX_CONCURRENT_CHECKS
+                MAX_CONCURRENT_CHECKS = v
+                console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
+            except Exception:
+                console.print(f"[red]{t('general.invalid_value')}[/red]")
         else:
             console.print(f"[red]{t('menu.invalid_choice')}[/red]")
 

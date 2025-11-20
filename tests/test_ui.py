@@ -65,6 +65,7 @@ class TestUI(unittest.TestCase):
             ping_host,
             check_port,
             1.0,
+            5,
             server_key,
             update_and_get_uptime,
             log_status,
