@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.7 — 2025-11-20
+
+- Documentation updates and migration guidance in README
+- Confirmed refactor notes and package paths
+- Version bumped to 2.0.7
+
 ## v2.0.6 — 2025-11-20
 
 - Established basic tests using `unittest` (`tests/`)

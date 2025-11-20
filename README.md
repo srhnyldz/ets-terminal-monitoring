@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.6
+- Version: v2.0.7
 
 Features
 
@@ -20,6 +20,7 @@ Features
 - Minimal dependency injection and wiring via `bootstrap()` in the app
 - Package modules under `ets_tm/` with cleaned imports
 - Basic unit tests with `unittest` (`tests/`)
+ - Migration notes: modules under `ets_tm/`, imports updated; CLI unchanged
 
 Requirements
 
@@ -76,7 +77,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.6
+- Sürüm: v2.0.7
 
 Özellikler
 
@@ -93,6 +94,7 @@ Türkçe
 - Uygulama içinde `bootstrap()` ile minimal bağımlılık enjeksiyonu ve wiring
 - Modüller `ets_tm/` altında paketlendi; import yolları temizlendi
 - Temel birim testleri `unittest` ile (`tests/`)
+ - Göç notları: modüller `ets_tm/` altında, importlar güncel; CLI değişmedi
 
 Gereksinimler
 
