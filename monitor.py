@@ -824,6 +824,7 @@ if __name__ == "__main__":
     parser.add_argument("--backup-servers", dest="backup_servers", nargs="?", const=BACKUPS_DIR, help="create incremental backup of servers.txt to directory")
     parser.add_argument("--restore-servers-latest", dest="restore_latest", nargs="?", const=BACKUPS_DIR, help="restore servers.txt from latest backup in directory")
     parser.add_argument("--restore-servers", dest="restore_servers", help="restore servers.txt from specific backup file path")
+    parser.add_argument("--migrate-logs", dest="migrate_logs", action="store_true", help="migrate log headers to English in monitor.log and rotations")
     parser.add_argument("--export-json", dest="export_json", help="export servers to JSON file")
     parser.add_argument("--export-csv", dest="export_csv", help="export servers to CSV file")
     parser.add_argument("--import-json", dest="import_json", help="import servers from JSON file (replaces list)")
@@ -835,7 +836,21 @@ if __name__ == "__main__":
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
     DEPS = bootstrap()
-    if args.backup_servers:
+    if args.migrate_logs:
+        files = [LOG_FILE] + [f"{LOG_FILE}.{i}" for i in range(1, 4)]
+        changed = 0
+        for fp in files:
+            try:
+                if app_io.migrate_log_header(fp):
+                    changed += 1
+            except Exception:
+                pass
+        print_header()
+        if changed > 0:
+            console.print(f"[green]Migrated[/green] {changed} file(s)")
+        else:
+            console.print(f"[yellow]No changes[/yellow]")
+    elif args.backup_servers:
         target_dir = args.backup_servers or BACKUPS_DIR
         built = app_io.incremental_backup(CONFIG_FILE, target_dir, prefix="servers", max_count=100)
         print_header()

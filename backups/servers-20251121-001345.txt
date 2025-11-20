@@ -1,4 +1,3 @@
 {"name": "serhanyildiz.dev", "host": "serhanyildiz.dev", "group": "Dev", "service": "HTTPS", "port": 443}
 {"name": "etsteknoloji.com.tr", "host": "etsteknoloji.com.tr", "group": "Web", "service": "HTTPS", "port": 443}
 {"name": "serhanyildiz.net.tr", "host": "serhanyildiz.net.tr", "group": "Web", "service": "HTTPS", "port": 443}
-{"name": "ptce.etsteknoloji.com.tr", "host": "ptce.etsteknoloji.com.tr", "group": "Cihaz", "service": "Özel Port", "port": 8201}

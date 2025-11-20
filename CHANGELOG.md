@@ -24,6 +24,13 @@
 - Automatic incremental backup on every save (add/edit/delete)
 - Version bumped to 2.3.1
 
+## v2.3.2 — 2025-11-21
+
+- Log migration tool to standardize headers
+  - Migrate Turkish header to English in `monitor.log` and rotations
+  - CLI: `--migrate-logs`
+- Version bumped to 2.3.2
+
 ## v2.2.4 — 2025-11-20
 
 - Column-based sorting in table

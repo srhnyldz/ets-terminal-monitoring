@@ -433,3 +433,31 @@ def restore_file_from_backup(target_path: str, backup_file: str) -> bool:
         return True
     except Exception:
         return False
+
+
+def migrate_log_header(path: str) -> bool:
+    if not os.path.exists(path):
+        return False
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            content = f.read()
+        if not content:
+            return False
+        lines = content.splitlines(True)
+        if not lines:
+            return False
+        first = lines[0].strip()
+        en = "date;group;name;host;service;port;status;ping;uptime"
+        if first.startswith("date;"):
+            return False
+        tr_candidates = [
+            "tarih;grup;ad;host;servis;port;durum;ping;uptime",
+            "Tarih;Grup;Ad;Host;Servis;Port;Durum;Ping;Uptime",
+        ]
+        if first in tr_candidates or ("grup;" in first and "servis;" in first):
+            lines[0] = en + "\n"
+            _atomic_write_text(path, "".join(lines))
+            return True
+    except Exception:
+        return False
+    return False

@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.3.1
+- Version: v2.3.2
 
 Features
 
@@ -30,6 +30,7 @@ Features
 - Summary metrics in caption (1h/24h: up/down, avg ping, uptime %) with aligned comparison; shortcuts shown on the next line
 - Import/Export server list via CLI (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - Incremental backups and restore commands for `servers.txt` (backup directory defaults to `backups/`)
+ - Log migration tool to standardize headers in `monitor.log` and rotated files
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -66,6 +67,7 @@ Quick Notes
 - CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`
 - CLI: `--export-json out.json`, `--export-csv out.csv`, `--import-json in.json`, `--import-csv in.csv`
  - CLI: `--backup-servers [dir]`, `--restore-servers-latest [dir]`, `--restore-servers <file>`
+  - CLI: `--migrate-logs` (translate Turkish log header to English)
 - Tests: `python -m pytest -q` (install `pytest`)
  - CLI flags
    - `python monitor.py --add` (add server flow)
@@ -118,7 +120,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.3.1
+- Sürüm: v2.3.2
 
 Özellikler
 
@@ -145,6 +147,7 @@ Türkçe
 - Özet metrikler caption’da (1s/24s: up/down, ort ping, uptime %) hizalı karşılaştırma ile; kısayollar bir alt satırda gösterilir
 - Sunucu listesini CLI ile içe/dışa aktar (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
  - `servers.txt` için artımlı yedekleme ve geri yükleme komutları (yedek dizini varsayılan `backups/`)
+ - Log migrasyon aracı: `monitor.log` ve rotasyon dosyalarında Türkçe başlığı İngilizceye çevirir
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)
@@ -186,6 +189,7 @@ Kullanım
   - `python monitor.py --backup-servers backups/` (artımlı yedek oluştur)
   - `python monitor.py --restore-servers-latest backups/` (en son yedeği geri yükle)
   - `python monitor.py --restore-servers backups/servers-YYYYMMDD-HHMMSS.txt` (belirli yedekten geri yükle)
+  - `python monitor.py --migrate-logs` (log başlığını İngilizceye dönüştür)
 
 Ayarlar
 
