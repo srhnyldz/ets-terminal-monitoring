@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.4 — 2025-11-20
+
+- Moved terminal UI to `ui.py` module
+- `build_table` injected with core and IO dependencies
+- Menu flows hooked via handler injection (preparation)
+- Version bumped to 2.0.4
+
 ## v2.0.3 — 2025-11-20
 
 - Moved core functions to `core.py`: `ping_host`, `check_port`

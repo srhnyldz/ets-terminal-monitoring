@@ -22,6 +22,7 @@ from rich.table import Table
 from rich.live import Live
 from rich import box
 from core import ping_host as core_ping_host, check_port as core_check_port, PingPolicy, PortPolicy
+from ui import build_table as ui_build_table
 
 console = Console()
 
@@ -29,7 +30,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.0.2"
+APP_VERSION = "2.0.4"
 
 class AppState:
     def __init__(self) -> None:
@@ -240,68 +241,20 @@ def ensure_log_header() -> None:
 # ------- Tablo Oluşturma ------- #
 
 def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]]) -> Table:
-    title = (
-        f"{APP_NAME}  |  {APP_URL}  |  "
-        f"{t('table.last_update')}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+    return ui_build_table(
+        servers,
+        stats,
+        lambda k, **kwargs: t(k, **kwargs),
+        app_state,
+        ping_host,
+        lambda h, p, to: check_port(h, p, timeout=to),
+        PORT_TIMEOUT,
+        server_key,
+        update_and_get_uptime,
+        log_status,
+        APP_NAME,
+        APP_URL,
     )
-
-    table = Table(
-        title=title,
-        box=box.ROUNDED,
-        expand=True,
-        style="bright_white on rgb(12,16,24)",
-        title_style="bold white",
-    )
-
-    table.add_column(t("table.group"), justify="left", style="cyan", no_wrap=True)
-    table.add_column(t("table.name"), justify="left", style="white")
-    table.add_column(t("table.host"), justify="left", style="bright_blue")
-    table.add_column(t("table.service"), justify="center", style="magenta")
-    table.add_column(t("table.port"), justify="right", style="magenta")
-    table.add_column(t("table.ping_ms"), justify="right", style="yellow")
-    table.add_column(t("table.uptime"), justify="right", style="green")
-    table.add_column(t("table.status"), justify="center", style="bold")
-
-    if app_state.current_group_filter:
-        servers = [s for s in servers if s.get('group', t('general.default_group')) == app_state.current_group_filter]
-    filter_note = f" | {t('filter.caption')}: {app_state.current_group_filter}" if app_state.current_group_filter else ""
-    table.caption = f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}{filter_note}"
-
-    for srv in servers:
-        name = srv.get("name", "")
-        host = srv.get("host", "")
-        group = srv.get("group", t('general.default_group'))
-        service = srv.get("service", t('service.unknown'))
-        port = int(srv.get("port", 0))
-
-        rtt = ping_host(host)
-        port_ok = check_port(host, port, timeout=PORT_TIMEOUT) if port > 0 else False
-        is_up = port_ok
-
-        key = server_key(srv)
-        uptime = update_and_get_uptime(stats, key, is_up)
-        log_status(srv, is_up, rtt, uptime)
-
-        if is_up:
-            status_text = t("status.online")
-        else:
-            status_text = t("status.offline")
-
-        ping_text = "-" if rtt is None else f"{rtt:6.1f}"
-        uptime_text = "-" if uptime is None else f"{uptime:5.1f}%"
-
-        table.add_row(
-            group,
-            name,
-            host,
-            service,
-            str(port),
-            ping_text,
-            uptime_text,
-            status_text,
-        )
-
-    return table
 
 
 # ------- Kullanıcı Etkileşimi: Ekle / Listele / Düzenle-Sil ------- #
