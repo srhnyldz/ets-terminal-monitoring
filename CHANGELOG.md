@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.2 — 2025-11-20
+
+- Backoff/retry policies for ping/port checks
+- Configurable via settings (`retry_attempts`, `retry_base_delay`)
+- Version bumped to 2.2.2
+
 ## v2.2.1 — 2025-11-20
 
 - Rate limiting for concurrent checks via `max_concurrent_checks` setting

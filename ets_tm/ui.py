@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional, Callable
 import asyncio
 from datetime import datetime
+import time
 from rich.table import Table
 from rich import box
 
@@ -14,6 +15,8 @@ def build_table(
     check_port: Callable[[str, int, float], bool],
     port_timeout: float,
     max_concurrent: int,
+    retry_attempts: int,
+    retry_base_delay: float,
     server_key: Callable[[Dict[str, Any]], str],
     update_and_get_uptime: Callable[[Dict[str, Dict[str, int]], str, bool], Optional[float]],
     log_status: Callable[[Dict[str, Any], bool, Optional[float], Optional[float]], None],
@@ -56,8 +59,26 @@ def build_table(
     async def _check_one(s):
         host = s.get("host", "")
         port = int(s.get("port", 0))
-        ping_task = asyncio.to_thread(ping_host, host)
-        port_task = asyncio.to_thread(check_port, host, port, port_timeout) if port > 0 else asyncio.to_thread(lambda: False)
+        def _retry_ping():
+            for i in range(max(1, retry_attempts)):
+                r = ping_host(host)
+                if r is not None:
+                    return r
+                time.sleep(retry_base_delay * (2 ** i))
+            return None
+
+        def _retry_port():
+            if port <= 0:
+                return False
+            for i in range(max(1, retry_attempts)):
+                ok = check_port(host, port, port_timeout)
+                if ok:
+                    return True
+                time.sleep(retry_base_delay * (2 ** i))
+            return False
+
+        ping_task = asyncio.to_thread(_retry_ping)
+        port_task = asyncio.to_thread(_retry_port)
         rtt, port_ok = await asyncio.gather(ping_task, port_task)
         return (s, rtt, bool(port_ok))
 
