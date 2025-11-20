@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.8 — 2025-11-20
+
+- Added CLI flags for common actions
+  - `--add`, `--list`, `--edit`, `--group-filter`, `--clear-filter`
+- Language selection preserved via `--lang` / positional
+- Version bumped to 2.1.8
+
 ## v2.1.7 — 2025-11-20
 
 - Added PyTest skeleton with initial tests

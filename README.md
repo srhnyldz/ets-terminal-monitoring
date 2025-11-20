@@ -49,6 +49,12 @@ Usage
   - `python monitor.py --lang tr` or `python monitor.py tr`
 - Show version
   - `python monitor.py --version`
+ - CLI flags
+   - `python monitor.py --add` (add server flow)
+   - `python monitor.py --list` (list saved servers)
+   - `python monitor.py --edit` (edit/delete flow)
+   - `python monitor.py --group-filter Web` (set group filter and start monitoring)
+   - `python monitor.py --clear-filter` (clear group filter and start monitoring)
 
 Settings
 
@@ -94,7 +100,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.7
+- Sürüm: v2.1.8
 
 Özellikler
 
@@ -140,6 +146,13 @@ Kullanım
   - `python monitor.py --lang tr` veya `python monitor.py tr`
 - Sürümü göster
   - `python monitor.py --version`
+
+- CLI bayrakları
+  - `python monitor.py --add` (sunucu ekleme akışı)
+  - `python monitor.py --list` (kayıtlı sunucuları listele)
+  - `python monitor.py --edit` (düzenle/sil akışı)
+  - `python monitor.py --group-filter Web` (grup filtresi ayarla ve izlemeyi başlat)
+  - `python monitor.py --clear-filter` (grup filtresini temizle ve izlemeyi başlat)
 
 Ayarlar
 

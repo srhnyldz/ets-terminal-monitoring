@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.1.7"
+APP_VERSION = "2.1.8"
 
 class AppState:
     def __init__(self) -> None:
@@ -707,6 +707,11 @@ if __name__ == "__main__":
     parser.add_argument("pos_lang", nargs="?", help="language code like 'en' or 'tr'")
     parser.add_argument("--lang", dest="lang", help="language code like 'en' or 'tr'")
     parser.add_argument("--version", "-V", action="store_true", help="print version and exit")
+    parser.add_argument("--add", action="store_true", help="open add server flow")
+    parser.add_argument("--list", dest="list_servers", action="store_true", help="list saved servers")
+    parser.add_argument("--edit", action="store_true", help="open edit/delete flow")
+    parser.add_argument("--group-filter", dest="group_filter", help="set group filter and start monitoring")
+    parser.add_argument("--clear-filter", dest="clear_filter", action="store_true", help="clear group filter and start monitoring")
     args = parser.parse_args()
     if args.version:
         print(f"{APP_NAME} v{APP_VERSION}")
@@ -714,4 +719,19 @@ if __name__ == "__main__":
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
     DEPS = bootstrap()
-    main_menu()
+    if args.add:
+        add_server_interactive()
+    elif args.list_servers:
+        show_servers()
+    elif args.edit:
+        edit_or_delete_server()
+    elif args.group_filter:
+        app_state.current_group_filter = args.group_filter
+        app_state.last_action_note = f"{t('note.filter_set')} {args.group_filter}"
+        monitor_servers()
+    elif args.clear_filter:
+        app_state.current_group_filter = None
+        app_state.last_action_note = t('note.filter_cleared')
+        monitor_servers()
+    else:
+        main_menu()
