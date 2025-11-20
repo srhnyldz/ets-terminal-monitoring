@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.4
+- Version: v2.0.5
 
 Features
 
@@ -17,6 +17,7 @@ Features
 - I/O operations abstracted to `app_io.py` (logs, settings, servers, stats)
 - Core functions moved to `core.py` (`ping_host`, `check_port`); simple policies
 - Terminal UI functions moved to `ui.py`; `build_table` uses injected deps
+- Minimal dependency injection and wiring via `bootstrap()` in the app
 
 Requirements
 
@@ -73,7 +74,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.4
+- Sürüm: v2.0.5
 
 Özellikler
 
@@ -87,6 +88,7 @@ Türkçe
 - I/O işlemleri `app_io.py` modülüne taşındı (log, ayarlar, sunucular, istatistik)
 - Çekirdek fonksiyonlar `core.py`’ye taşındı (`ping_host`, `check_port`); basit politikalar
 - Terminal UI fonksiyonları `ui.py`’ye taşındı; `build_table` bağımlılık enjeksiyonu kullanır
+- Uygulama içinde `bootstrap()` ile minimal bağımlılık enjeksiyonu ve wiring
 
 Gereksinimler
 

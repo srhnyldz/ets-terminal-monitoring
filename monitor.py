@@ -30,7 +30,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.0.4"
+APP_VERSION = "2.0.5"
 
 class AppState:
     def __init__(self) -> None:
@@ -240,20 +240,38 @@ def ensure_log_header() -> None:
 
 # ------- Tablo Oluşturma ------- #
 
+def bootstrap() -> Dict[str, Any]:
+    return {
+        "t": lambda k, **kwargs: t(k, **kwargs),
+        "state": app_state,
+        "ping_host": ping_host,
+        "check_port": lambda h, p, to: check_port(h, p, timeout=to),
+        "port_timeout": PORT_TIMEOUT,
+        "server_key": server_key,
+        "update_and_get_uptime": update_and_get_uptime,
+        "log_status": log_status,
+        "app_name": APP_NAME,
+        "app_url": APP_URL,
+        "ui_build_table": ui_build_table,
+    }
+
+DEPS: Dict[str, Any] = {}
+
 def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]]) -> Table:
-    return ui_build_table(
+    deps = DEPS or bootstrap()
+    return deps["ui_build_table"](
         servers,
         stats,
-        lambda k, **kwargs: t(k, **kwargs),
-        app_state,
-        ping_host,
-        lambda h, p, to: check_port(h, p, timeout=to),
-        PORT_TIMEOUT,
-        server_key,
-        update_and_get_uptime,
-        log_status,
-        APP_NAME,
-        APP_URL,
+        deps["t"],
+        deps["state"],
+        deps["ping_host"],
+        deps["check_port"],
+        deps["port_timeout"],
+        deps["server_key"],
+        deps["update_and_get_uptime"],
+        deps["log_status"],
+        deps["app_name"],
+        deps["app_url"],
     )
 
 
@@ -699,4 +717,5 @@ if __name__ == "__main__":
         sys.exit(0)
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
+    DEPS = bootstrap()
     main_menu()

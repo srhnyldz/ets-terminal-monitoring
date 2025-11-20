@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.5 — 2025-11-20
+
+- Introduced minimal dependency injection (wiring) via `bootstrap()`
+- `monitor.py` resolves UI/core/IO via injected dependencies
+- Keeps loose coupling across modules; app remains functional
+- Version bumped to 2.0.5
+
 ## v2.0.4 — 2025-11-20
 
 - Moved terminal UI to `ui.py` module
