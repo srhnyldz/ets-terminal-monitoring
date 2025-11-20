@@ -1,0 +1,8 @@
+{
+  "refresh_interval": 10.0,
+  "ping_timeout": 1.5,
+  "port_timeout": 1.5,
+  "live_fullscreen": true,
+  "refresh_per_second": 4,
+  "prefer_system_ping": false
+}

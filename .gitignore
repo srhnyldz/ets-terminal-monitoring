@@ -16,7 +16,7 @@ venv/
 .idea/
 
 # Project runtime files
-config.json
+# config.json
 servers.txt
 server_stats.json
 monitor.log
