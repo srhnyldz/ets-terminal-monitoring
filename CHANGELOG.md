@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.2.4 — 2025-11-20
+
+- Column-based sorting in table
+- Shortcuts for sorting (<, >, r) and sort indicator in caption
+- Version bumped to 2.2.4
+
 ## v2.2.3 — 2025-11-20
 
 - Table pagination for large server lists

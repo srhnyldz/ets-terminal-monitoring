@@ -50,6 +50,21 @@ def build_table(
         servers = [
             s for s in servers if s.get("group", t("general.default_group")) == app_state.current_group_filter
         ]
+    sort_key = getattr(app_state, "current_sort_key", "name")
+    sort_desc = bool(getattr(app_state, "sort_desc", False))
+    def _srv_sort_value(s: Dict[str, Any]):
+        if sort_key == "group":
+            return s.get("group", t("general.default_group"))
+        if sort_key == "name":
+            return s.get("name", "")
+        if sort_key == "host":
+            return s.get("host", "")
+        if sort_key == "service":
+            return s.get("service", "")
+        if sort_key == "port":
+            return int(s.get("port", 0))
+        return s.get("name", "")
+    servers.sort(key=_srv_sort_value, reverse=sort_desc)
     total = len(servers)
     total_pages = max(1, (total + max(1, page_size) - 1) // max(1, page_size))
     try:
@@ -63,8 +78,9 @@ def build_table(
     filter_note = (
         f" | {t('filter.caption')}: {app_state.current_group_filter}" if getattr(app_state, "current_group_filter", None) else ""
     )
+    sort_note = f" | {t('table.sort')}: {sort_key} {t('sort.desc') if sort_desc else t('sort.asc')}"
     table.caption = (
-        f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}{filter_note}{page_note}"
+        f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}, > {t('shortcut.next_sort')}, < {t('shortcut.prev_sort')}, r {t('shortcut.toggle_sort_order')}{filter_note}{page_note}{sort_note}"
     )
 
     async def _check_one(s):

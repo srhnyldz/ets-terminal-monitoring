@@ -26,6 +26,7 @@ Features
 - Rate limiting via `max_concurrent_checks` setting
 - Backoff/retry for transient failures (`retry_attempts`, `retry_base_delay`)
 - Table pagination with shortcuts ([ and ])
+ - Column-based sorting with shortcuts (<, >, r)
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -135,6 +136,7 @@ Türkçe
   - Eşzamanlılık için oran kısıtlama (`max_concurrent_checks` ayarı)
   - Geçici hatalarda backoff/yeniden deneme (`retry_attempts`, `retry_base_delay`)
   - Büyük listeler için tablo sayfalama (kısayollar: [ ve ])
+  - Sütun bazlı sıralama (kısayollar: <, >, r)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

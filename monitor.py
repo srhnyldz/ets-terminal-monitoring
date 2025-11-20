@@ -31,13 +31,15 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.2.3"
+APP_VERSION = "2.2.4"
 
 class AppState:
     def __init__(self) -> None:
         self.last_action_note: str = ""
         self.current_group_filter: Optional[str] = None
         self.current_page: int = 1
+        self.current_sort_key: str = "name"
+        self.sort_desc: bool = False
 
 app_state = AppState()
 
@@ -86,6 +88,8 @@ def validate_settings_dict(d: Dict[str, Any]) -> Dict[str, Any]:
                 refresh_per_second: int = 4
                 prefer_system_ping: bool = False
                 max_concurrent_checks: int = 20
+                retry_attempts: int = 3
+                retry_base_delay: float = 0.2
 
             m = _SettingsModel(**d)  # type: ignore[arg-type]
             return dict(m.__dict__)
@@ -142,6 +146,8 @@ def load_settings() -> Dict[str, Any]:
         "prefer_system_ping": False,
         "max_concurrent_checks": 20,
         "page_size": 20,
+        "retry_attempts": 3,
+        "retry_base_delay": 0.2,
     }
     return app_io.load_settings(SETTINGS_FILE, defaults, validate_settings_dict)
 
@@ -157,6 +163,8 @@ REFRESH_PER_SECOND = int(settings["refresh_per_second"])
 PREFER_SYSTEM_PING = bool(settings["prefer_system_ping"])
 MAX_CONCURRENT_CHECKS = int(settings.get("max_concurrent_checks", 20))
 PAGE_SIZE = int(settings.get("page_size", 20))
+RETRY_ATTEMPTS = int(settings.get("retry_attempts", 3))
+RETRY_BASE_DELAY = float(settings.get("retry_base_delay", 0.2))
 
 LANG_DIR = str(BASE_DIR / "lang")
 DEFAULT_LANG = "en"
@@ -251,6 +259,8 @@ def bootstrap() -> Dict[str, Any]:
         "port_timeout": PORT_TIMEOUT,
         "max_concurrent": MAX_CONCURRENT_CHECKS,
         "page_size": PAGE_SIZE,
+        "retry_attempts": RETRY_ATTEMPTS,
+        "retry_base_delay": RETRY_BASE_DELAY,
         "server_key": server_key,
         "update_and_get_uptime": update_and_get_uptime,
         "log_status": log_status,
@@ -273,6 +283,8 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
         deps["port_timeout"],
         deps["max_concurrent"],
         deps["page_size"],
+        deps["retry_attempts"],
+        deps["retry_base_delay"],
         deps["server_key"],
         deps["update_and_get_uptime"],
         deps["log_status"],
@@ -685,6 +697,25 @@ def monitor_servers():
                         continue
                     if key == "[":
                         app_state.current_page = max(1, app_state.current_page - 1)
+                        continue
+                    if key == ">":
+                        keys = ["group","name","host","service","port"]
+                        try:
+                            i = keys.index(app_state.current_sort_key)
+                        except Exception:
+                            i = 1
+                        app_state.current_sort_key = keys[(i + 1) % len(keys)]
+                        continue
+                    if key == "<":
+                        keys = ["group","name","host","service","port"]
+                        try:
+                            i = keys.index(app_state.current_sort_key)
+                        except Exception:
+                            i = 1
+                        app_state.current_sort_key = keys[(i - 1) % len(keys)]
+                        continue
+                    if key == "r":
+                        app_state.sort_desc = not bool(getattr(app_state, "sort_desc", False))
                         continue
                 else:
                     servers = load_servers()
