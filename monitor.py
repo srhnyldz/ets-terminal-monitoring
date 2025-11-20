@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.4.2"
+APP_VERSION = "2.4.3"
 
 class AppState:
     def __init__(self) -> None:
@@ -938,6 +938,9 @@ if __name__ == "__main__":
     parser.add_argument("--restore-servers-latest", dest="restore_latest", nargs="?", const=BACKUPS_DIR, help="restore servers.txt from latest backup in directory")
     parser.add_argument("--restore-servers", dest="restore_servers", help="restore servers.txt from specific backup file path")
     parser.add_argument("--migrate-logs", dest="migrate_logs", action="store_true", help="migrate log headers to English in monitor.log and rotations")
+    parser.add_argument("--add-language", dest="add_language", help="add new language by copying English template (code like 'de')")
+    parser.add_argument("--check-language", dest="check_language", help="check language keys against English (code like 'de')")
+    parser.add_argument("--list-languages", dest="list_languages", action="store_true", help="list available languages")
     parser.add_argument("--export-json", dest="export_json", help="export servers to JSON file")
     parser.add_argument("--export-csv", dest="export_csv", help="export servers to CSV file")
     parser.add_argument("--import-json", dest="import_json", help="import servers from JSON file (replaces list)")
@@ -949,7 +952,50 @@ if __name__ == "__main__":
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
     DEPS = bootstrap()
-    if args.migrate_logs:
+    if args.add_language:
+        code = args.add_language.strip()
+        en = load_language("en")
+        p = Path(LANG_DIR) / f"{code}.json"
+        print_header()
+        if p.exists():
+            console.print(f"[yellow]{t('lang.exists')}[/yellow] {code}")
+        else:
+            try:
+                with open(p, "w", encoding="utf-8") as f:
+                    json.dump(en, f, ensure_ascii=False, indent=2)
+                console.print(f"[green]{t('lang.added')}[/green] {p}")
+            except Exception:
+                console.print(f"[red]Failed to add language[/red]")
+    elif args.check_language:
+        code = args.check_language.strip()
+        en = load_language("en")
+        other = load_language(code)
+        print_header()
+        missing = sorted([k for k in en.keys() if k not in other])
+        extra = sorted([k for k in other.keys() if k not in en])
+        console.print(f"[bold]{t('lang.missing')}[/bold]")
+        if missing:
+            for k in missing:
+                console.print(f"- {k}")
+        else:
+            console.print(t('lang.check.no_missing'))
+        console.print("")
+        console.print(f"[bold]{t('lang.extra')}[/bold]")
+        if extra:
+            for k in extra:
+                console.print(f"- {k}")
+        else:
+            console.print(t('lang.check.no_extra'))
+    elif args.list_languages:
+        print_header()
+        try:
+            codes = sorted([p.stem for p in Path(LANG_DIR).glob("*.json")])
+        except Exception:
+            codes = []
+        console.print(f"[bold]{t('lang.list')}[/bold]")
+        for c in codes:
+            console.print(f"- {c}")
+    elif args.migrate_logs:
         files = [LOG_FILE] + [f"{LOG_FILE}.{i}" for i in range(1, 4)]
         changed = 0
         for fp in files:

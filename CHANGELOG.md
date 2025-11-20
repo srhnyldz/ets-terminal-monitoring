@@ -23,6 +23,14 @@
   - Bulk move servers between groups
 - Version bumped to 2.4.2
 
+## v2.4.3 — 2025-11-21
+
+- Language management CLI
+  - Add language from English template: `--add-language <code>`
+  - Check missing/extra keys vs English: `--check-language <code>`
+  - List available languages: `--list-languages`
+- Version bumped to 2.4.3
+
 ## v2.3.2 — 2025-11-21
 
 - Log migration tool to standardize headers
