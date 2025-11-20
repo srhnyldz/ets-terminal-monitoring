@@ -1,19 +1,18 @@
 # Changelog
 
-## v2.2.5 — 2025-11-21
+## v2.4.0 — 2025-11-21
 
-- Summary metrics in monitor caption
-  - 1h/24h windows: up/down counts, average ping, uptime %
-  - Aligned two-line comparison for 1h vs 24h
-  - Shortcuts moved to a new caption line for readability
-- Version bumped to 2.2.5
+- Rich theme improvements in monitor table
+  - Minimal double head border and subtle background
+  - Bold cyan headers; zebra row styles; dim captions
+  - Conditional coloring for ping and uptime cells
 
-## v2.3.0 — 2025-11-21
+## v2.3.2 — 2025-11-21
 
-- Import/Export commands for server list
-  - Export to JSON/CSV: `--export-json`, `--export-csv`
-  - Import from JSON/CSV (replace list): `--import-json`, `--import-csv`
-- Version bumped to 2.3.0
+- Log migration tool to standardize headers
+  - Migrate Turkish header to English in `monitor.log` and rotations
+  - CLI: `--migrate-logs`
+- Version bumped to 2.3.2
 
 ## v2.3.1 — 2025-11-21
 
@@ -24,12 +23,20 @@
 - Automatic incremental backup on every save (add/edit/delete)
 - Version bumped to 2.3.1
 
-## v2.3.2 — 2025-11-21
+## v2.3.0 — 2025-11-21
 
-- Log migration tool to standardize headers
-  - Migrate Turkish header to English in `monitor.log` and rotations
-  - CLI: `--migrate-logs`
-- Version bumped to 2.3.2
+- Import/Export commands for server list
+  - Export to JSON/CSV: `--export-json`, `--export-csv`
+  - Import from JSON/CSV (replace list): `--import-json`, `--import-csv`
+- Version bumped to 2.3.0
+
+## v2.2.5 — 2025-11-21
+
+- Summary metrics in monitor caption
+  - 1h/24h windows: up/down counts, average ping, uptime %
+  - Aligned two-line comparison for 1h vs 24h
+  - Shortcuts moved to a new caption line for readability
+- Version bumped to 2.2.5
 
 ## v2.2.4 — 2025-11-20
 

@@ -32,10 +32,15 @@ def build_table(
 
     table = Table(
         title=title,
-        box=box.ROUNDED,
+        box=box.MINIMAL_DOUBLE_HEAD,
         expand=True,
-        style="bright_white on rgb(12,16,24)",
-        title_style="bold white",
+        style="bright_white on rgb(10,14,22)",
+        title_style="bold bright_cyan",
+        caption_style="dim",
+        header_style="bold cyan",
+        border_style="bright_black",
+        row_styles=["none", "dim"],
+        show_header=True,
     )
 
     table.add_column(t("table.group"), justify="left", style="cyan", no_wrap=True)
@@ -157,8 +162,22 @@ def build_table(
         log_status(srv, is_up, rtt, uptime)
 
         status_text = t("status.online") if is_up else t("status.offline")
-        ping_text = "-" if rtt is None else f"{rtt:6.1f}"
-        uptime_text = "-" if uptime is None else f"{uptime:5.1f}%"
+        if rtt is None:
+            ping_text = "[dim]-[/dim]"
+        else:
+            ping_text = (
+                f"[green]{rtt:6.1f}[/green]" if rtt < 50.0 else (
+                    f"[yellow]{rtt:6.1f}[/yellow]" if rtt < 150.0 else f"[red]{rtt:6.1f}[/red]"
+                )
+            )
+        if uptime is None:
+            uptime_text = "[dim]-[/dim]"
+        else:
+            uptime_text = (
+                f"[green]{uptime:5.1f}%[/green]" if uptime >= 99.0 else (
+                    f"[yellow]{uptime:5.1f}%[/yellow]" if uptime >= 95.0 else f"[red]{uptime:5.1f}%[/red]"
+                )
+            )
 
         table.add_row(
             group,

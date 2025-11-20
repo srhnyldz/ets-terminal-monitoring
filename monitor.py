@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.3.0"
+APP_VERSION = "2.4.0"
 
 class AppState:
     def __init__(self) -> None:
