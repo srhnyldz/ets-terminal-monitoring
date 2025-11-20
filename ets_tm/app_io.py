@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+import csv
+import io
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
 
@@ -138,4 +140,15 @@ def append_log_line(path: str, line: str, ensure_header: bool = True) -> None:
     logger = get_logger(path)
     if line.endswith("\n"):
         line = line[:-1]
+    logger.info(line)
+
+
+def append_log_row(path: str, row: List[str], ensure_header: bool = True) -> None:
+    if ensure_header:
+        ensure_log_header(path)
+    buf = io.StringIO()
+    writer = csv.writer(buf, delimiter=";", quoting=csv.QUOTE_MINIMAL, lineterminator="\n")
+    writer.writerow(row)
+    line = buf.getvalue().rstrip("\n")
+    logger = get_logger(path)
     logger.info(line)

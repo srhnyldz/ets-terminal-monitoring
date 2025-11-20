@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.3 — 2025-11-20
+
+- Switched log writing to Python `csv` module with field normalization
+- `log_status` now emits rows via `append_log_row`
+- Rotation preserved through logger integration
+- Version bumped to 2.1.3
+
 ## v2.1.2 — 2025-11-20
 
 - Integrated Python `logging` with `RotatingFileHandler` for `monitor.log`

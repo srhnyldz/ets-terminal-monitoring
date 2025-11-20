@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.1.2"
+APP_VERSION = "2.1.3"
 
 class AppState:
     def __init__(self) -> None:
@@ -217,7 +217,7 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
     if service_out == "Özel Port":
         service_out = "Custom Port"
 
-    line = ";".join([
+    row = [
         ts,
         group_out,
         srv.get("name", ""),
@@ -227,9 +227,8 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
         status_str,
         ping_str,
         uptime_str,
-    ]) + "\n"
-
-    app_io.append_log_line(LOG_FILE, line, ensure_header=True)
+    ]
+    app_io.append_log_row(LOG_FILE, row, ensure_header=True)
 
 def ensure_log_header() -> None:
     app_io.ensure_log_header(LOG_FILE)
