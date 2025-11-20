@@ -28,7 +28,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.0.0"
+APP_VERSION = "2.0.1"
 
 class AppState:
     def __init__(self) -> None:
@@ -43,6 +43,53 @@ STATS_FILE = str(BASE_DIR / "server_stats.json")
 LOG_FILE = str(BASE_DIR / "monitor.log")
 SETTINGS_FILE = str(BASE_DIR / "config.json")
 BACKUP_FILE = str(BASE_DIR / "servers.bak")
+
+try:
+    from pydantic import BaseModel as _BaseModel, ValidationError as _ValidationError
+    HAS_PYDANTIC = True
+except Exception:
+    HAS_PYDANTIC = False
+    class _BaseModel:  # type: ignore
+        pass
+    class _ValidationError(Exception):
+        pass
+
+class ServerModel(_BaseModel):
+    group: Optional[str] = None
+    name: str
+    host: str
+    service: str
+    port: int
+
+class SettingsModel(_BaseModel):
+    refresh_interval: float = 2.0
+    ping_timeout: float = 1.5
+    port_timeout: float = 1.5
+    live_fullscreen: bool = True
+    refresh_per_second: int = 4
+    prefer_system_ping: bool = False
+
+def validate_server_dict(d: Dict[str, Any]) -> Dict[str, Any]:
+    if HAS_PYDANTIC:
+        try:
+            m = ServerModel(**d)  # type: ignore[arg-type]
+            return dict(m.__dict__)
+        except _ValidationError:
+            return d
+        except Exception:
+            return d
+    return d
+
+def validate_settings_dict(d: Dict[str, Any]) -> Dict[str, Any]:
+    if HAS_PYDANTIC:
+        try:
+            m = SettingsModel(**d)  # type: ignore[arg-type]
+            return dict(m.__dict__)
+        except _ValidationError:
+            return d
+        except Exception:
+            return d
+    return d
 
 
 SERVICE_CHOICES = {
@@ -76,7 +123,9 @@ def load_servers() -> List[Dict[str, Any]]:
             if not line:
                 continue
             try:
-                servers.append(json.loads(line))
+                obj = json.loads(line)
+                obj = validate_server_dict(obj)
+                servers.append(obj)
             except json.JSONDecodeError:
                 errors += 1
     if errors and not servers and os.path.exists(BACKUP_FILE):
@@ -84,7 +133,17 @@ def load_servers() -> List[Dict[str, Any]]:
             with open(BACKUP_FILE, "r", encoding="utf-8") as bf, open(CONFIG_FILE, "w", encoding="utf-8") as cf:
                 cf.write(bf.read())
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                servers = [json.loads(l.strip()) for l in f if l.strip()]
+                servers = []
+                for l in f:
+                    l = l.strip()
+                    if not l:
+                        continue
+                    try:
+                        obj = json.loads(l)
+                        obj = validate_server_dict(obj)
+                        servers.append(obj)
+                    except Exception:
+                        pass
             console.print(f"[yellow]{t('backup.restored')}[/yellow]")
         except Exception:
             pass
@@ -132,6 +191,7 @@ def load_settings() -> Dict[str, Any]:
     try:
         with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
+            data = validate_settings_dict(data)
             for k, v in defaults.items():
                 if k not in data:
                     data[k] = v
@@ -141,8 +201,9 @@ def load_settings() -> Dict[str, Any]:
         return defaults.copy()
 
 def save_settings(settings: Dict[str, Any]) -> None:
+    payload = validate_settings_dict(settings)
     with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-        json.dump(settings, f, ensure_ascii=False, indent=2)
+        json.dump(payload, f, ensure_ascii=False, indent=2)
 
 settings = load_settings()
 REFRESH_INTERVAL = float(settings["refresh_interval"])

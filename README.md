@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.0
+- Version: v2.0.1
 
 Features
 
@@ -18,7 +18,7 @@ Features
 Requirements
 
 - Python 3.9+
-- Packages: `rich`, `ping3`
+- Packages: `rich`, `ping3`, `pydantic` (optional)
 
 Installation
 
@@ -26,7 +26,7 @@ Installation
   - `python3 -m venv .venv`
   - `source .venv/bin/activate`
 - Install dependencies
-  - `python -m pip install rich ping3`
+  - `python -m pip install rich ping3 pydantic`
 
 Usage
 
@@ -70,7 +70,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.0
+- Sürüm: v2.0.1
 
 Özellikler
 
@@ -85,7 +85,7 @@ Türkçe
 Gereksinimler
 
 - Python 3.9+
-- Paketler: `rich`, `ping3`
+- Paketler: `rich`, `ping3`, `pydantic` (opsiyonel)
 
 Kurulum
 
@@ -93,7 +93,7 @@ Kurulum
   - `python3 -m venv .venv`
   - `source .venv/bin/activate`
 - Bağımlılıkları yükle
-  - `python -m pip install rich ping3`
+  - `python -m pip install rich ping3 pydantic`
 
 Kullanım
 

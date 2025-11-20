@@ -1,5 +1,11 @@
 # Changelog
 
+## v2.0.1 — 2025-11-20
+
+- Optional domain models with validation: `ServerModel`, `SettingsModel`
+- Adapters integrated into load/save without breaking dict usage
+- Application remains functional
+
 ## v2.0.0 — 2025-11-20
 
 - Introduced `AppState` and removed global state usage
