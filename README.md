@@ -1,0 +1,133 @@
+# ETS Terminal Monitoring
+
+English
+
+- Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
+- Version: v1.0
+
+Features
+
+- Live monitoring table with color status and uptime
+- Ping via `ping3` with automatic fallback to system `ping`
+- Configurable refresh interval, timeouts, fullscreen, refresh rate, system ping preference
+- Persistent settings in `config.json` and server list in `servers.txt`
+- Keyboard shortcuts in monitor view: `q` quit, `n` add, `s` settings, `l` list, `e` edit
+- Multi-language (default English, Turkish via CLI)
+
+Requirements
+
+- Python 3.9+
+- Packages: `rich`, `ping3`
+
+Installation
+
+- Create virtual environment
+  - `python3 -m venv .venv`
+  - `source .venv/bin/activate`
+- Install dependencies
+  - `python -m pip install rich ping3`
+
+Usage
+
+- Start app
+  - `python monitor.py`
+- Turkish language
+  - `python monitor.py --lang tr` or `python monitor.py tr`
+- Show version
+  - `python monitor.py --version`
+
+Settings
+
+- Open: Main Menu → Settings or press `s` in monitor view
+- Stored in `config.json` at project root
+- Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
+- Code references: `monitor.py:100-124` for settings I/O, `monitor.py:125-131` for runtime values
+
+Shortcuts
+
+- In monitor view: `q` quit, `n` add server, `s` settings, `l` list, `e` edit/delete
+- Caption localized under the table
+
+Internationalization
+
+- Language files: `lang/en.json`, `lang/tr.json`
+- Loader and translation function: `monitor.py:138-156`
+- CLI language: `--lang tr` or positional `tr`: `monitor.py:640-646`
+
+Data Files
+
+- Servers list: `servers.txt` (one JSON per line)
+- Stats: `server_stats.json`
+- Logs: `monitor.log`
+- Settings: `config.json`
+
+Development
+
+- Run with virtualenv active
+- All runtime files are saved relative to the application directory: `monitor.py:32-36`
+
+Türkçe
+
+- Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
+- Sürüm: v1.0
+
+Özellikler
+
+- Renkli durum ve uptime ile canlı izleme tablosu
+- `ping3` ile ping, başarısızsa sistem `ping` düşüşü
+- Ayarlanabilir güncelleme sıklığı, zaman aşımı, tam ekran, yenileme hızı, sistem ping tercihi
+- `config.json` ayarları ve `servers.txt` sunucu listesi kalıcı
+- İzleme ekranı kısayolları: `q` çıkış, `n` yeni, `s` ayarlar, `l` liste, `e` düzenle
+- Çoklu dil (varsayılan İngilizce, CLI ile Türkçe)
+
+Gereksinimler
+
+- Python 3.9+
+- Paketler: `rich`, `ping3`
+
+Kurulum
+
+- Sanal ortam oluştur
+  - `python3 -m venv .venv`
+  - `source .venv/bin/activate`
+- Bağımlılıkları yükle
+  - `python -m pip install rich ping3`
+
+Kullanım
+
+- Uygulamayı başlat
+  - `python monitor.py`
+- Türkçe dil
+  - `python monitor.py --lang tr` veya `python monitor.py tr`
+- Sürümü göster
+  - `python monitor.py --version`
+
+Ayarlar
+
+- Aç: Ana Menü → Ayarlar veya izleme ekranında `s`
+- Proje kökünde `config.json` içinde saklanır
+- Anahtarlar: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
+- Kod referansları: Ayar I/O `monitor.py:100-124`, çalışma değerleri `monitor.py:125-131`
+
+Kısayollar
+
+- İzleme ekranında: `q` çıkış, `n` yeni sunucu, `s` ayarlar, `l` liste, `e` düzenle/sil
+- Tablo altında lokalize açıklama
+
+Çoklu Dil
+
+- Dil dosyaları: `lang/en.json`, `lang/tr.json`
+- Yükleme ve çeviri fonksiyonu: `monitor.py:138-156`
+- CLI dil: `--lang tr` veya konumsal `tr`: `monitor.py:640-646`
+
+Veri Dosyaları
+
+- Sunucular: `servers.txt` (satır başına JSON)
+- İstatistik: `server_stats.json`
+- Log: `monitor.log`
+- Ayarlar: `config.json`
+
+Geliştirme
+
+- Sanal ortam aktifken çalıştırın
+- Tüm çalışma dosyaları uygulama dizinine yazılır: `monitor.py:32-36`
