@@ -5,6 +5,7 @@ import csv
 import io
 from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
+import tempfile
 
 
 def load_servers(path: str, backup_path: str, validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
@@ -47,14 +48,28 @@ def load_servers(path: str, backup_path: str, validator: Optional[Callable[[Dict
     return servers
 
 
-def save_servers(path: str, backup_path: str, servers: List[Dict[str, Any]]) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        for srv in servers:
-            f.write(json.dumps(srv, ensure_ascii=False) + "\n")
+def _atomic_write_text(path: str, text: str) -> None:
+    d = os.path.dirname(path) or "."
+    fd, tmp = tempfile.mkstemp(dir=d)
     try:
-        with open(backup_path, "w", encoding="utf-8") as f:
-            for srv in servers:
-                f.write(json.dumps(srv, ensure_ascii=False) + "\n")
+        with os.fdopen(fd, "w", encoding="utf-8") as f:
+            f.write(text)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, path)
+    except Exception:
+        try:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+        except Exception:
+            pass
+
+
+def save_servers(path: str, backup_path: str, servers: List[Dict[str, Any]]) -> None:
+    content = "".join(json.dumps(s, ensure_ascii=False) + "\n" for s in servers)
+    _atomic_write_text(path, content)
+    try:
+        _atomic_write_text(backup_path, content)
     except Exception:
         pass
 
@@ -70,8 +85,7 @@ def load_stats(path: str) -> Dict[str, Dict[str, int]]:
 
 
 def save_stats(path: str, stats: Dict[str, Dict[str, int]]) -> None:
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(stats, f, ensure_ascii=False, indent=2)
+    _atomic_write_text(path, json.dumps(stats, ensure_ascii=False, indent=2))
 
 
 def load_settings(path: str, defaults: Dict[str, Any], validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> Dict[str, Any]:
@@ -94,8 +108,7 @@ def load_settings(path: str, defaults: Dict[str, Any], validator: Optional[Calla
 
 def save_settings(path: str, settings: Dict[str, Any], validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> None:
     payload = validator(settings) if validator else settings
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    _atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 def ensure_log_header(path: str) -> None:

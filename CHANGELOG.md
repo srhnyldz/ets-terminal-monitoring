@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.4 — 2025-11-20
+
+- Implemented atomic file writes using temp + `os.replace`
+- Applies to servers, stats, and settings save operations
+- Basic recovery: original files preserved on write failure
+- Version bumped to 2.1.4
+
 ## v2.1.3 — 2025-11-20
 
 - Switched log writing to Python `csv` module with field normalization

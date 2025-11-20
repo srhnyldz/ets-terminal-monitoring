@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.1.3
+- Version: v2.1.4
 
 Features
 
@@ -22,6 +22,7 @@ Features
 - Basic unit tests with `unittest` (`tests/`)
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
+- Atomic file writes for save operations (temp + `os.replace`)
  - Migration notes: modules under `ets_tm/`, imports updated; CLI unchanged
 
 Requirements
@@ -86,7 +87,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.3
+- Sürüm: v2.1.4
 
 Özellikler
 
@@ -105,6 +106,7 @@ Türkçe
 - Temel birim testleri `unittest` ile (`tests/`)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
+- Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)
  - Göç notları: modüller `ets_tm/` altında, importlar güncel; CLI değişmedi
 
 Gereksinimler
