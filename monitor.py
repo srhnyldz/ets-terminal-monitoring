@@ -31,12 +31,13 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.2.2"
+APP_VERSION = "2.2.3"
 
 class AppState:
     def __init__(self) -> None:
         self.last_action_note: str = ""
         self.current_group_filter: Optional[str] = None
+        self.current_page: int = 1
 
 app_state = AppState()
 
@@ -140,6 +141,7 @@ def load_settings() -> Dict[str, Any]:
         "refresh_per_second": 4,
         "prefer_system_ping": False,
         "max_concurrent_checks": 20,
+        "page_size": 20,
     }
     return app_io.load_settings(SETTINGS_FILE, defaults, validate_settings_dict)
 
@@ -154,6 +156,7 @@ LIVE_FULLSCREEN = bool(settings["live_fullscreen"])
 REFRESH_PER_SECOND = int(settings["refresh_per_second"])
 PREFER_SYSTEM_PING = bool(settings["prefer_system_ping"])
 MAX_CONCURRENT_CHECKS = int(settings.get("max_concurrent_checks", 20))
+PAGE_SIZE = int(settings.get("page_size", 20))
 
 LANG_DIR = str(BASE_DIR / "lang")
 DEFAULT_LANG = "en"
@@ -247,6 +250,7 @@ def bootstrap() -> Dict[str, Any]:
         "check_port": lambda h, p, to: check_port(h, p, timeout=to),
         "port_timeout": PORT_TIMEOUT,
         "max_concurrent": MAX_CONCURRENT_CHECKS,
+        "page_size": PAGE_SIZE,
         "server_key": server_key,
         "update_and_get_uptime": update_and_get_uptime,
         "log_status": log_status,
@@ -268,6 +272,7 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
         deps["check_port"],
         deps["port_timeout"],
         deps["max_concurrent"],
+        deps["page_size"],
         deps["server_key"],
         deps["update_and_get_uptime"],
         deps["log_status"],
@@ -508,9 +513,10 @@ def settings_menu():
         console.print(f"5) {t('settings.refresh_hz')}: {s['refresh_per_second']}")
         console.print(f"6) {t('settings.prefer_system_ping')}: {t('general.yes') if s['prefer_system_ping'] else t('general.no')}")
         console.print(f"7) {t('settings.max_concurrent_checks')}: {s.get('max_concurrent_checks', 20)}")
-        console.print(f"8) {t('general.back')}")
+        console.print(f"8) {t('settings.page_size')}: {s.get('page_size', 20)}")
+        console.print(f"9) {t('general.back')}")
         choice = input(t("menu.choice_prompt")).strip()
-        if choice in ("8", "", None):
+        if choice in ("9", "", None):
             return
         if choice == "1":
             val = input(t("settings.input_refresh_interval")).strip()
@@ -605,6 +611,22 @@ def settings_menu():
                 app_state.last_action_note = t('note.settings_updated')
             except Exception:
                 console.print(f"[red]{t('general.invalid_value')}[/red]")
+        elif choice == "8":
+            val = input(t("settings.input_page_size")).strip()
+            try:
+                v = int(val)
+                if v <= 0:
+                    console.print(f"[red]{t('general.gt_zero')}[/red]")
+                    continue
+                s["page_size"] = v
+                save_settings(s)
+                global PAGE_SIZE
+                PAGE_SIZE = v
+                app_state.current_page = 1
+                console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
+            except Exception:
+                console.print(f"[red]{t('general.invalid_value')}[/red]")
         else:
             console.print(f"[red]{t('menu.invalid_choice')}[/red]")
 
@@ -658,6 +680,12 @@ def monitor_servers():
                     if key == "a":
                         next_action = "clear_filter"
                         break
+                    if key == "]":
+                        app_state.current_page += 1
+                        continue
+                    if key == "[":
+                        app_state.current_page = max(1, app_state.current_page - 1)
+                        continue
                 else:
                     servers = load_servers()
                     table = build_table(servers, stats)

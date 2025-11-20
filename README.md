@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.2.0
+- Version: v2.2.3
 
 Features
 
@@ -25,6 +25,7 @@ Features
 - Concurrent ping/port checks via `asyncio`
 - Rate limiting via `max_concurrent_checks` setting
 - Backoff/retry for transient failures (`retry_attempts`, `retry_base_delay`)
+- Table pagination with shortcuts ([ and ])
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -71,7 +72,7 @@ Settings
 
 - Open: Main Menu → Settings or press `s` in monitor view
 - Stored in `config.json` at project root
-- Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`, `max_concurrent_checks`, `retry_attempts`, `retry_base_delay`
+- Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`, `max_concurrent_checks`, `retry_attempts`, `retry_base_delay`, `page_size`
 - Code references: `monitor.py:133-146` for settings I/O, `monitor.py:147-153` for runtime values
 
 Shortcuts
@@ -111,7 +112,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.2.0
+- Sürüm: v2.2.3
 
 Özellikler
 
@@ -133,6 +134,7 @@ Türkçe
   - `asyncio` ile ping/port kontrollerinde eşzamanlılık
   - Eşzamanlılık için oran kısıtlama (`max_concurrent_checks` ayarı)
   - Geçici hatalarda backoff/yeniden deneme (`retry_attempts`, `retry_base_delay`)
+  - Büyük listeler için tablo sayfalama (kısayollar: [ ve ])
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

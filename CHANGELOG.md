@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.2.3 — 2025-11-20
+
+- Table pagination for large server lists
+- Shortcuts for paging ([ and ]) and page indicator
+- Configurable `page_size` setting
+- Version bumped to 2.2.3
+
 ## v2.2.2 — 2025-11-20
 
 - Backoff/retry policies for ping/port checks

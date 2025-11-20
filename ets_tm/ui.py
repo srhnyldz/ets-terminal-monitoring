@@ -15,6 +15,7 @@ def build_table(
     check_port: Callable[[str, int, float], bool],
     port_timeout: float,
     max_concurrent: int,
+    page_size: int,
     retry_attempts: int,
     retry_base_delay: float,
     server_key: Callable[[Dict[str, Any]], str],
@@ -49,11 +50,21 @@ def build_table(
         servers = [
             s for s in servers if s.get("group", t("general.default_group")) == app_state.current_group_filter
         ]
+    total = len(servers)
+    total_pages = max(1, (total + max(1, page_size) - 1) // max(1, page_size))
+    try:
+        app_state.current_page = min(max(1, app_state.current_page), total_pages)
+    except Exception:
+        app_state.current_page = 1
+    start = (app_state.current_page - 1) * max(1, page_size)
+    end = start + max(1, page_size)
+    page_servers = servers[start:end]
+    page_note = f" | {t('table.page', page=app_state.current_page, total=total_pages)}" if total_pages > 1 else ""
     filter_note = (
         f" | {t('filter.caption')}: {app_state.current_group_filter}" if getattr(app_state, "current_group_filter", None) else ""
     )
     table.caption = (
-        f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}{filter_note}"
+        f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}, ] {t('shortcut.next_page')}, [ {t('shortcut.prev_page')}{filter_note}{page_note}"
     )
 
     async def _check_one(s):
@@ -90,7 +101,7 @@ def build_table(
             out.extend(res)
         return out
 
-    results = asyncio.run(_gather_batched(servers, max_concurrent))
+    results = asyncio.run(_gather_batched(page_servers, max_concurrent))
 
     for srv, rtt, port_ok in results:
         name = srv.get("name", "")

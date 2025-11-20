@@ -66,6 +66,7 @@ class TestUI(unittest.TestCase):
             check_port,
             1.0,
             5,
+            10,
             2,
             0.1,
             server_key,
