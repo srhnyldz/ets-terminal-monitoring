@@ -49,6 +49,7 @@ STATS_FILE = str(BASE_DIR / "server_stats.json")
 LOG_FILE = str(BASE_DIR / "monitor.log")
 SETTINGS_FILE = str(BASE_DIR / "config.json")
 BACKUP_FILE = str(BASE_DIR / "servers.bak")
+BACKUPS_DIR = str(BASE_DIR / "backups")
 
 try:
     import pydantic  # type: ignore
@@ -127,6 +128,10 @@ def load_servers() -> List[Dict[str, Any]]:
 
 def save_servers(servers: List[Dict[str, Any]]) -> None:
     app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers, validate_server_dict)
+    try:
+        app_io.incremental_backup(CONFIG_FILE, BACKUPS_DIR, prefix="servers", max_count=100)
+    except Exception:
+        pass
 
 
 def load_stats() -> Dict[str, Dict[str, int]]:
@@ -816,6 +821,9 @@ if __name__ == "__main__":
     parser.add_argument("--edit", action="store_true", help="open edit/delete flow")
     parser.add_argument("--group-filter", dest="group_filter", help="set group filter and start monitoring")
     parser.add_argument("--clear-filter", dest="clear_filter", action="store_true", help="clear group filter and start monitoring")
+    parser.add_argument("--backup-servers", dest="backup_servers", nargs="?", const=BACKUPS_DIR, help="create incremental backup of servers.txt to directory")
+    parser.add_argument("--restore-servers-latest", dest="restore_latest", nargs="?", const=BACKUPS_DIR, help="restore servers.txt from latest backup in directory")
+    parser.add_argument("--restore-servers", dest="restore_servers", help="restore servers.txt from specific backup file path")
     parser.add_argument("--export-json", dest="export_json", help="export servers to JSON file")
     parser.add_argument("--export-csv", dest="export_csv", help="export servers to CSV file")
     parser.add_argument("--import-json", dest="import_json", help="import servers from JSON file (replaces list)")
@@ -827,7 +835,30 @@ if __name__ == "__main__":
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
     DEPS = bootstrap()
-    if args.export_json:
+    if args.backup_servers:
+        target_dir = args.backup_servers or BACKUPS_DIR
+        built = app_io.incremental_backup(CONFIG_FILE, target_dir, prefix="servers", max_count=100)
+        print_header()
+        if built:
+            console.print(f"[green]Backup created[/green] -> {built}")
+        else:
+            console.print(f"[red]Backup failed[/red]")
+    elif args.restore_latest:
+        source_dir = args.restore_latest or BACKUPS_DIR
+        latest = app_io.find_latest_backup(source_dir, prefix="servers")
+        print_header()
+        if latest and app_io.restore_file_from_backup(CONFIG_FILE, latest):
+            console.print(f"[green]Restored[/green] <- {latest}")
+        else:
+            console.print(f"[red]Restore failed[/red]")
+    elif args.restore_servers:
+        ok = app_io.restore_file_from_backup(CONFIG_FILE, args.restore_servers)
+        print_header()
+        if ok:
+            console.print(f"[green]Restored[/green] <- {args.restore_servers}")
+        else:
+            console.print(f"[red]Restore failed[/red]")
+    elif args.export_json:
         servers = load_servers()
         app_io.export_servers_json(args.export_json, servers)
         print_header()

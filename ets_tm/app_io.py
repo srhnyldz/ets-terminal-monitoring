@@ -13,6 +13,7 @@ from logging.handlers import RotatingFileHandler
 from typing import Any, Dict, List, Callable, Optional
 from datetime import datetime, timezone
 import tempfile
+import shutil
 
 
 def load_servers(path: str, backup_path: str, validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
@@ -380,3 +381,55 @@ def import_servers_csv(path: str, validator: Optional[Callable[[Dict[str, Any]],
         return out
     except Exception:
         return []
+
+
+def ensure_dir(path: str) -> None:
+    try:
+        os.makedirs(path, exist_ok=True)
+    except Exception:
+        pass
+
+
+def incremental_backup(src_path: str, backups_dir: str, prefix: str = "servers", ts_format: str = "%Y%m%d-%H%M%S", max_count: int = 100) -> Optional[str]:
+    if not os.path.exists(src_path):
+        return None
+    ensure_dir(backups_dir)
+    ts = datetime.now().strftime(ts_format)
+    name = f"{prefix}-{ts}.txt"
+    dst = os.path.join(backups_dir, name)
+    try:
+        shutil.copyfile(src_path, dst)
+    except Exception:
+        return None
+    try:
+        files = sorted([f for f in os.listdir(backups_dir) if f.startswith(prefix + "-") and f.endswith(".txt")])
+        while len(files) > max_count:
+            oldest = files.pop(0)
+            try:
+                os.unlink(os.path.join(backups_dir, oldest))
+            except Exception:
+                break
+    except Exception:
+        pass
+    return dst
+
+
+def find_latest_backup(backups_dir: str, prefix: str = "servers") -> Optional[str]:
+    try:
+        files = [f for f in os.listdir(backups_dir) if f.startswith(prefix + "-") and f.endswith(".txt")]
+        if not files:
+            return None
+        files.sort()
+        return os.path.join(backups_dir, files[-1])
+    except Exception:
+        return None
+
+
+def restore_file_from_backup(target_path: str, backup_file: str) -> bool:
+    try:
+        with open(backup_file, "r", encoding="utf-8") as f:
+            content = f.read()
+        _atomic_write_text(target_path, content)
+        return True
+    except Exception:
+        return False

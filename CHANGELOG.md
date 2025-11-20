@@ -15,6 +15,15 @@
   - Import from JSON/CSV (replace list): `--import-json`, `--import-csv`
 - Version bumped to 2.3.0
 
+## v2.3.1 — 2025-11-21
+
+- Incremental backups and restore commands
+  - Create backups to directory: `--backup-servers [dir]`
+  - Restore latest from directory: `--restore-servers-latest [dir]`
+  - Restore from specific file: `--restore-servers <file>`
+- Automatic incremental backup on every save (add/edit/delete)
+- Version bumped to 2.3.1
+
 ## v2.2.4 — 2025-11-20
 
 - Column-based sorting in table
