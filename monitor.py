@@ -28,7 +28,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.0.1"
+APP_VERSION = "2.0.2"
 
 class AppState:
     def __init__(self) -> None:
@@ -111,70 +111,25 @@ def print_header():
     console.print(f"\n[bold green]{APP_NAME} {t('app.version', version=APP_VERSION)}[/bold green]  -  [cyan]{APP_URL}[/cyan]\n")
 
 
-def load_servers() -> List[Dict[str, Any]]:
-    servers: List[Dict[str, Any]] = []
-    if not os.path.exists(CONFIG_FILE):
-        return servers
+import app_io
 
-    errors = 0
-    with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                obj = json.loads(line)
-                obj = validate_server_dict(obj)
-                servers.append(obj)
-            except json.JSONDecodeError:
-                errors += 1
-    if errors and not servers and os.path.exists(BACKUP_FILE):
-        try:
-            with open(BACKUP_FILE, "r", encoding="utf-8") as bf, open(CONFIG_FILE, "w", encoding="utf-8") as cf:
-                cf.write(bf.read())
-            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
-                servers = []
-                for l in f:
-                    l = l.strip()
-                    if not l:
-                        continue
-                    try:
-                        obj = json.loads(l)
-                        obj = validate_server_dict(obj)
-                        servers.append(obj)
-                    except Exception:
-                        pass
-            console.print(f"[yellow]{t('backup.restored')}[/yellow]")
-        except Exception:
-            pass
+def load_servers() -> List[Dict[str, Any]]:
+    servers = app_io.load_servers(CONFIG_FILE, BACKUP_FILE, validate_server_dict)
+    if not servers and os.path.exists(BACKUP_FILE):
+        console.print(f"[yellow]{t('backup.restored')}[/yellow]")
     return servers
 
 
 def save_servers(servers: List[Dict[str, Any]]) -> None:
-    with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        for srv in servers:
-            f.write(json.dumps(srv, ensure_ascii=False) + "\n")
-    try:
-        with open(BACKUP_FILE, "w", encoding="utf-8") as f:
-            for srv in servers:
-                f.write(json.dumps(srv, ensure_ascii=False) + "\n")
-    except Exception:
-        pass
+    app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers)
 
 
 def load_stats() -> Dict[str, Dict[str, int]]:
-    if not os.path.exists(STATS_FILE):
-        return {}
-    try:
-        with open(STATS_FILE, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return {}
+    return app_io.load_stats(STATS_FILE)
 
 
 def save_stats(stats: Dict[str, Dict[str, int]]) -> None:
-    with open(STATS_FILE, "w", encoding="utf-8") as f:
-        json.dump(stats, f, ensure_ascii=False, indent=2)
+    app_io.save_stats(STATS_FILE, stats)
 
 def load_settings() -> Dict[str, Any]:
     defaults = {
@@ -185,25 +140,10 @@ def load_settings() -> Dict[str, Any]:
         "refresh_per_second": 4,
         "prefer_system_ping": False,
     }
-    if not os.path.exists(SETTINGS_FILE):
-        save_settings(defaults)
-        return defaults.copy()
-    try:
-        with open(SETTINGS_FILE, "r", encoding="utf-8") as f:
-            data = json.load(f)
-            data = validate_settings_dict(data)
-            for k, v in defaults.items():
-                if k not in data:
-                    data[k] = v
-            return data
-    except Exception:
-        save_settings(defaults)
-        return defaults.copy()
+    return app_io.load_settings(SETTINGS_FILE, defaults, validate_settings_dict)
 
 def save_settings(settings: Dict[str, Any]) -> None:
-    payload = validate_settings_dict(settings)
-    with open(SETTINGS_FILE, "w", encoding="utf-8") as f:
-        json.dump(payload, f, ensure_ascii=False, indent=2)
+    app_io.save_settings(SETTINGS_FILE, settings, validate_settings_dict)
 
 settings = load_settings()
 REFRESH_INTERVAL = float(settings["refresh_interval"])
@@ -321,27 +261,10 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
         uptime_str,
     ]) + "\n"
 
-    ensure_log_header()
-    with open(LOG_FILE, "a", encoding="utf-8") as f:
-        f.write(line)
+    app_io.append_log_line(LOG_FILE, line, ensure_header=True)
 
 def ensure_log_header() -> None:
-    header = "date;group;name;host;service;port;status;ping;uptime\n"
-    if not os.path.exists(LOG_FILE):
-        with open(LOG_FILE, "w", encoding="utf-8") as f:
-            f.write(header)
-        return
-    try:
-        with open(LOG_FILE, "r", encoding="utf-8") as f:
-            first = f.readline()
-        if not first.startswith("date;"):
-            with open(LOG_FILE, "r+", encoding="utf-8") as f:
-                content = f.read()
-                f.seek(0)
-                f.write(header)
-                f.write(content)
-    except Exception:
-        pass
+    app_io.ensure_log_header(LOG_FILE)
 
 
 # ------- Tablo Oluşturma ------- #

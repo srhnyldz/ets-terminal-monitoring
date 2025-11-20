@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.2 — 2025-11-20
+
+- Moved file I/O and logging to `app_io.py` module
+- Adapted `monitor.py` to use IO abstractions
+- Ensured log header handling via IO layer
+- Version bumped to 2.0.2
+
 ## v2.0.1 — 2025-11-20
 
 - Optional domain models with validation: `ServerModel`, `SettingsModel`
