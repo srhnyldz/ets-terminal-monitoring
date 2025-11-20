@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.0.6 — 2025-11-20
+
+- Established basic tests using `unittest` (`tests/`)
+- Created package directory `ets_tm` and cleaned import paths
+- Verified IO/UI/Core via unit tests and discovery
+- Version bumped to 2.0.6
+
 ## v2.0.5 — 2025-11-20
 
 - Introduced minimal dependency injection (wiring) via `bootstrap()`

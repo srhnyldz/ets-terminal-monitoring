@@ -21,8 +21,9 @@ from rich.console import Console
 from rich.table import Table
 from rich.live import Live
 from rich import box
-from core import ping_host as core_ping_host, check_port as core_check_port, PingPolicy, PortPolicy
-from ui import build_table as ui_build_table
+from ets_tm.core import ping_host as core_ping_host, check_port as core_check_port
+from ets_tm.ui import build_table as ui_build_table
+import ets_tm.app_io as app_io
 
 console = Console()
 
@@ -30,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.0.5"
+APP_VERSION = "2.0.6"
 
 class AppState:
     def __init__(self) -> None:
@@ -113,7 +114,6 @@ def print_header():
     console.print(f"\n[bold green]{APP_NAME} {t('app.version', version=APP_VERSION)}[/bold green]  -  [cyan]{APP_URL}[/cyan]\n")
 
 
-import app_io
 
 def load_servers() -> List[Dict[str, Any]]:
     servers = app_io.load_servers(CONFIG_FILE, BACKUP_FILE, validate_server_dict)

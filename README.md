@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.0.5
+- Version: v2.0.6
 
 Features
 
@@ -18,6 +18,8 @@ Features
 - Core functions moved to `core.py` (`ping_host`, `check_port`); simple policies
 - Terminal UI functions moved to `ui.py`; `build_table` uses injected deps
 - Minimal dependency injection and wiring via `bootstrap()` in the app
+- Package modules under `ets_tm/` with cleaned imports
+- Basic unit tests with `unittest` (`tests/`)
 
 Requirements
 
@@ -74,7 +76,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.0.5
+- Sürüm: v2.0.6
 
 Özellikler
 
@@ -89,6 +91,8 @@ Türkçe
 - Çekirdek fonksiyonlar `core.py`’ye taşındı (`ping_host`, `check_port`); basit politikalar
 - Terminal UI fonksiyonları `ui.py`’ye taşındı; `build_table` bağımlılık enjeksiyonu kullanır
 - Uygulama içinde `bootstrap()` ile minimal bağımlılık enjeksiyonu ve wiring
+- Modüller `ets_tm/` altında paketlendi; import yolları temizlendi
+- Temel birim testleri `unittest` ile (`tests/`)
 
 Gereksinimler
 
