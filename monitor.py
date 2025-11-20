@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.1.8"
+APP_VERSION = "2.1.9"
 
 class AppState:
     def __init__(self) -> None:
@@ -296,10 +296,13 @@ def add_server_interactive():
 
         console.print(f"\n[bold]{t('add.select_service')}[/bold]")
         for key, (svc_name, default_port) in SERVICE_CHOICES.items():
+            svc_out = t(f"service.{svc_name}")
+            if svc_out == f"service.{svc_name}":
+                svc_out = svc_name
             if default_port is not None:
-                console.print(f"  {key}) {svc_name} (port {default_port})")
+                console.print(f"  {key}) {svc_out} (port {default_port})")
             else:
-                console.print(f"  {key}) {svc_name}")
+                console.print(f"  {key}) {svc_out}")
 
         choice = None
         while choice not in SERVICE_CHOICES:
@@ -350,9 +353,14 @@ def show_servers():
 
     console.print(f"[bold cyan]{t('list.title')}[/bold cyan]\n")
     for idx, srv in enumerate(servers, start=1):
+        svc_name = srv.get('service')
+        svc_key = f"service.{svc_name}"
+        svc_out = t(svc_key)
+        if svc_out == svc_key:
+            svc_out = svc_name
         console.print(
             f"{idx:2d}) [white]{srv.get('name')}[/white] "
-            f"({srv.get('host')} - {srv.get('service')}:{srv.get('port')}) "
+            f"({srv.get('host')} - {svc_out}:{srv.get('port')}) "
             f"[dim][{srv.get('group', 'Genel')}][/dim]"
         )
     console.print("")
@@ -367,9 +375,14 @@ def edit_or_delete_server():
 
     console.print(f"[bold cyan]{t('edit.title')}[/bold cyan]\n")
     for idx, srv in enumerate(servers, start=1):
+        svc_name = srv.get('service')
+        svc_key = f"service.{svc_name}"
+        svc_out = t(svc_key)
+        if svc_out == svc_key:
+            svc_out = svc_name
         console.print(
             f"{idx:2d}) [white]{srv.get('name')}[/white] "
-            f"({srv.get('host')} - {srv.get('service')}:{srv.get('port')}) "
+            f"({srv.get('host')} - {svc_out}:{srv.get('port')}) "
             f"[dim][{srv.get('group', 'Genel')}][/dim]"
         )
 
@@ -434,10 +447,13 @@ def edit_or_delete_server():
     if change_service in ("e", "evet"):
         console.print(f"\n[bold]{t('edit.select_service')}[/bold]")
         for key, (svc_name, default_port) in SERVICE_CHOICES.items():
+            svc_out = t(f"service.{svc_name}")
+            if svc_out == f"service.{svc_name}":
+                svc_out = svc_name
             if default_port is not None:
-                console.print(f"  {key}) {svc_name} (port {default_port})")
+                console.print(f"  {key}) {svc_out} (port {default_port})")
             else:
-                console.print(f"  {key}) {svc_name}")
+                console.print(f"  {key}) {svc_out}")
 
         c = None
         while c not in SERVICE_CHOICES:

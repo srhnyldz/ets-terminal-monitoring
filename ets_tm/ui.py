@@ -55,7 +55,10 @@ def build_table(
         name = srv.get("name", "")
         host = srv.get("host", "")
         group = srv.get("group", t("general.default_group"))
-        service = srv.get("service", t("service.unknown"))
+        service_name = srv.get("service", t("service.unknown"))
+        service_key = f"service.{service_name}"
+        _svc = t(service_key)
+        service = service_name if _svc == service_key else _svc
         port = int(srv.get("port", 0))
 
         rtt = ping_host(host)

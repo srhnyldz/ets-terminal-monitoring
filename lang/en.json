@@ -98,6 +98,15 @@
   "edit.input_change_service": "Change service [{service}:{port}]? (Y/n): ",
   "general.default_group": "General",
   "service.unknown": "Unknown",
+  "service.HTTP": "HTTP",
+  "service.HTTPS": "HTTPS",
+  "service.POP3": "POP3",
+  "service.IMAP": "IMAP",
+  "service.SMTP": "SMTP",
+  "service.MySQL": "MySQL",
+  "service.FTP": "FTP",
+  "service.SSH": "SSH",
+  "service.Custom Port": "Custom Port",
   "first_run.message": "[bold yellow]Looks like first run.[/bold yellow]\nNo saved servers yet. Let's add a few first.\n",
   "app.version": "v{version}"
 }

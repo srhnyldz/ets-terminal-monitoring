@@ -1,11 +1,12 @@
 # Changelog
 
-## v2.1.8 — 2025-11-20
+## v2.1.9 — 2025-11-20
 
-- Added CLI flags for common actions
-  - `--add`, `--list`, `--edit`, `--group-filter`, `--clear-filter`
-- Language selection preserved via `--lang` / positional
-- Version bumped to 2.1.8
+- Internationalization improvements
+  - Localized service names in UI table and menus
+  - Added service translation keys in `lang/en.json` and `lang/tr.json`
+- Kept logs standardized in English
+- Version bumped to 2.1.9
 
 ## v2.1.7 — 2025-11-20
 

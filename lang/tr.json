@@ -98,6 +98,15 @@
   "edit.input_change_service": "Servis [{service}:{port}] değiştirilsin mi? (E/h): ",
   "general.default_group": "Genel",
   "service.unknown": "Bilinmiyor",
+  "service.HTTP": "HTTP",
+  "service.HTTPS": "HTTPS",
+  "service.POP3": "POP3",
+  "service.IMAP": "IMAP",
+  "service.SMTP": "SMTP",
+  "service.MySQL": "MySQL",
+  "service.FTP": "FTP",
+  "service.SSH": "SSH",
+  "service.Custom Port": "Özel Port",
   "first_run.message": "[bold yellow]İlk kez çalıştırılıyor gibi görünüyor.[/bold yellow]\nHenüz kayıtlı sunucu yok. Önce birkaç sunucu ekleyelim.\n",
   "app.version": "v{version}"
 }
