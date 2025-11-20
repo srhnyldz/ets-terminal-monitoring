@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.1.1 — 2025-11-20
+
+- Added static type analysis setup via `mypy` (`mypy.ini`)
+- Integrated `mypy` into pre-commit hooks
+- Initial type cleanups and annotations retained
+- Version bumped to 2.1.1
+
 ## v2.1.0 — 2025-11-20
 
 - Added pre-commit configuration with `black` and `ruff`

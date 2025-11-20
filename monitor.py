@@ -14,7 +14,7 @@ import termios
 import tty
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Type
 
 from ping3 import ping
 from rich.console import Console
@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.1.0"
+APP_VERSION = "2.1.1"
 
 class AppState:
     def __init__(self) -> None:
@@ -48,37 +48,27 @@ SETTINGS_FILE = str(BASE_DIR / "config.json")
 BACKUP_FILE = str(BASE_DIR / "servers.bak")
 
 try:
-    from pydantic import BaseModel as _BaseModel, ValidationError as _ValidationError
+    import pydantic  # type: ignore
     HAS_PYDANTIC = True
 except Exception:
     HAS_PYDANTIC = False
-    class _BaseModel:  # type: ignore
-        pass
-    class _ValidationError(Exception):
-        pass
 
-class ServerModel(_BaseModel):
-    group: Optional[str] = None
-    name: str
-    host: str
-    service: str
-    port: int
-
-class SettingsModel(_BaseModel):
-    refresh_interval: float = 2.0
-    ping_timeout: float = 1.5
-    port_timeout: float = 1.5
-    live_fullscreen: bool = True
-    refresh_per_second: int = 4
-    prefer_system_ping: bool = False
+# Domain models are validated lazily inside helper functions to avoid
+# conditional base-class definitions at module scope.
 
 def validate_server_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     if HAS_PYDANTIC:
         try:
-            m = ServerModel(**d)  # type: ignore[arg-type]
+            from pydantic import BaseModel as _BModel  # type: ignore
+            class _ServerModel(_BModel):  # type: ignore[misc]
+                group: Optional[str] = None
+                name: str
+                host: str
+                service: str
+                port: int
+
+            m = _ServerModel(**d)  # type: ignore[arg-type]
             return dict(m.__dict__)
-        except _ValidationError:
-            return d
         except Exception:
             return d
     return d
@@ -86,10 +76,17 @@ def validate_server_dict(d: Dict[str, Any]) -> Dict[str, Any]:
 def validate_settings_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     if HAS_PYDANTIC:
         try:
-            m = SettingsModel(**d)  # type: ignore[arg-type]
+            from pydantic import BaseModel as _BModel  # type: ignore
+            class _SettingsModel(_BModel):  # type: ignore[misc]
+                refresh_interval: float = 2.0
+                ping_timeout: float = 1.5
+                port_timeout: float = 1.5
+                live_fullscreen: bool = True
+                refresh_per_second: int = 4
+                prefer_system_ping: bool = False
+
+            m = _SettingsModel(**d)  # type: ignore[arg-type]
             return dict(m.__dict__)
-        except _ValidationError:
-            return d
         except Exception:
             return d
     return d

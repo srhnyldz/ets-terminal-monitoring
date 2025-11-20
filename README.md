@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.1.0
+- Version: v2.1.1
 
 Features
 
@@ -77,11 +77,14 @@ Development
   - `python -m pip install pre-commit ruff black`
   - `pre-commit install`
   - `pre-commit run --all-files`
+- Optional: run static type analysis (mypy)
+  - `python -m pip install mypy`
+  - `mypy . --config-file mypy.ini`
 
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.0
+- Sürüm: v2.1.1
 
 Özellikler
 
@@ -155,3 +158,6 @@ Geliştirme
   - `python -m pip install pre-commit ruff black`
   - `pre-commit install`
   - `pre-commit run --all-files`
+- Opsiyonel: statik tip analizi (mypy)
+  - `python -m pip install mypy`
+  - `mypy . --config-file mypy.ini`
