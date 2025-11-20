@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.1.6
+- Version: v2.1.7
 
 Features
 
@@ -21,6 +21,7 @@ Features
 - Minimal dependency injection and wiring via `bootstrap()` in the app
 - Package modules under `ets_tm/` with cleaned imports
 - Basic unit tests with `unittest` (`tests/`)
+- PyTest skeleton with initial tests (ping/port, i18n)
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -84,12 +85,16 @@ Development
   - `pre-commit run --all-files`
 - Optional: run static type analysis (mypy)
   - `python -m pip install mypy`
-  - `mypy . --config-file mypy.ini`
+- `mypy . --config-file mypy.ini`
+
+- Optional: run PyTest
+  - `python -m pip install pytest`
+  - `python -m pytest -q`
 
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.6
+- Sürüm: v2.1.7
 
 Özellikler
 
@@ -107,6 +112,7 @@ Türkçe
 - Uygulama içinde `bootstrap()` ile minimal bağımlılık enjeksiyonu ve wiring
 - Modüller `ets_tm/` altında paketlendi; import yolları temizlendi
 - Temel birim testleri `unittest` ile (`tests/`)
+ - PyTest iskeleti ve ilk testler (ping/port, i18n)
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

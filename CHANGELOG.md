@@ -1,6 +1,12 @@
 # Changelog
 
-# Changelog
+## v2.1.7 — 2025-11-20
+
+- Added PyTest skeleton with initial tests
+  - Core: `PingPolicy.parse_rtt` and `PortPolicy.is_open` via monkeypatch
+  - I18n: `t()` with `set_language('en'/'tr')` and fallback behavior
+- Documentation updates to include PyTest usage instructions
+- Version bumped to 2.1.7
 
 ## v2.1.6 — 2025-11-20
 
