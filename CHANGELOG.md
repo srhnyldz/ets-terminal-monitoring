@@ -1,5 +1,20 @@
 # Changelog
 
+## v2.0.0 — 2025-11-20
+
+- Introduced `AppState` and removed global state usage
+- Prepared transition skeleton while keeping the app functional
+- Version bumped to 2.0.0
+
+## v1.1.0 — 2025-11-20
+
+- Group filter in monitor view with shortcuts (`g` to set, `a` to clear)
+- Last action note shown in main menu
+- Log file header added (`date;group;name;host;service;port;status;ping;uptime`)
+- Improved input validation messages (choices and port range)
+- Automatic restore from `servers.bak` if `servers.txt` is corrupted
+- Version bumped to 1.1.0
+
 ## v1.0 — 2025-11-20
 
 - Initial public release

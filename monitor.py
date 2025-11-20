@@ -28,13 +28,21 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "1.0"
+APP_VERSION = "2.0.0"
+
+class AppState:
+    def __init__(self) -> None:
+        self.last_action_note: str = ""
+        self.current_group_filter: Optional[str] = None
+
+app_state = AppState()
 
 BASE_DIR = Path(__file__).resolve().parent
 CONFIG_FILE = str(BASE_DIR / "servers.txt")
 STATS_FILE = str(BASE_DIR / "server_stats.json")
 LOG_FILE = str(BASE_DIR / "monitor.log")
 SETTINGS_FILE = str(BASE_DIR / "config.json")
+BACKUP_FILE = str(BASE_DIR / "servers.bak")
 
 
 SERVICE_CHOICES = {
@@ -46,7 +54,7 @@ SERVICE_CHOICES = {
     "6": ("MySQL", 3306),
     "7": ("FTP", 21),
     "8": ("SSH", 22),
-    "9": ("Özel Port", None),
+    "9": ("Custom Port", None),
 }
 
 
@@ -61,6 +69,7 @@ def load_servers() -> List[Dict[str, Any]]:
     if not os.path.exists(CONFIG_FILE):
         return servers
 
+    errors = 0
     with open(CONFIG_FILE, "r", encoding="utf-8") as f:
         for line in f:
             line = line.strip()
@@ -69,7 +78,16 @@ def load_servers() -> List[Dict[str, Any]]:
             try:
                 servers.append(json.loads(line))
             except json.JSONDecodeError:
-                console.print(f"[red]Uyarı:[/red] Geçersiz satır atlandı: {line}")
+                errors += 1
+    if errors and not servers and os.path.exists(BACKUP_FILE):
+        try:
+            with open(BACKUP_FILE, "r", encoding="utf-8") as bf, open(CONFIG_FILE, "w", encoding="utf-8") as cf:
+                cf.write(bf.read())
+            with open(CONFIG_FILE, "r", encoding="utf-8") as f:
+                servers = [json.loads(l.strip()) for l in f if l.strip()]
+            console.print(f"[yellow]{t('backup.restored')}[/yellow]")
+        except Exception:
+            pass
     return servers
 
 
@@ -77,6 +95,12 @@ def save_servers(servers: List[Dict[str, Any]]) -> None:
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
         for srv in servers:
             f.write(json.dumps(srv, ensure_ascii=False) + "\n")
+    try:
+        with open(BACKUP_FILE, "w", encoding="utf-8") as f:
+            for srv in servers:
+                f.write(json.dumps(srv, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
 
 
 def load_stats() -> Dict[str, Dict[str, int]]:
@@ -217,20 +241,46 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
     ping_str = "-" if rtt is None else f"{rtt:.1f}"
     uptime_str = "-" if uptime is None else f"{uptime:.2f}"
 
+    group_out = srv.get("group", "")
+    if group_out == t('general.default_group'):
+        group_out = "General"
+    service_out = srv.get("service", "")
+    if service_out == "Özel Port":
+        service_out = "Custom Port"
+
     line = ";".join([
         ts,
-        srv.get("group", ""),
+        group_out,
         srv.get("name", ""),
         srv.get("host", ""),
-        srv.get("service", ""),
+        service_out,
         str(srv.get("port", "")),
         status_str,
         ping_str,
         uptime_str,
     ]) + "\n"
 
+    ensure_log_header()
     with open(LOG_FILE, "a", encoding="utf-8") as f:
         f.write(line)
+
+def ensure_log_header() -> None:
+    header = "date;group;name;host;service;port;status;ping;uptime\n"
+    if not os.path.exists(LOG_FILE):
+        with open(LOG_FILE, "w", encoding="utf-8") as f:
+            f.write(header)
+        return
+    try:
+        with open(LOG_FILE, "r", encoding="utf-8") as f:
+            first = f.readline()
+        if not first.startswith("date;"):
+            with open(LOG_FILE, "r+", encoding="utf-8") as f:
+                content = f.read()
+                f.seek(0)
+                f.write(header)
+                f.write(content)
+    except Exception:
+        pass
 
 
 # ------- Tablo Oluşturma ------- #
@@ -238,7 +288,7 @@ def log_status(srv: Dict[str, Any], is_up: bool, rtt: Optional[float], uptime: O
 def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]]) -> Table:
     title = (
         f"{APP_NAME}  |  {APP_URL}  |  "
-        f"Son Güncelleme: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        f"{t('table.last_update')}: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
     )
 
     table = Table(
@@ -258,13 +308,16 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
     table.add_column(t("table.uptime"), justify="right", style="green")
     table.add_column(t("table.status"), justify="center", style="bold")
 
-    table.caption = f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}"
+    if app_state.current_group_filter:
+        servers = [s for s in servers if s.get('group', t('general.default_group')) == app_state.current_group_filter]
+    filter_note = f" | {t('filter.caption')}: {app_state.current_group_filter}" if app_state.current_group_filter else ""
+    table.caption = f"{t('shortcuts')}: q {t('shortcut.quit')}, n {t('shortcut.add')}, s {t('shortcut.settings')}, l {t('shortcut.list')}, e {t('shortcut.edit')}, g {t('shortcut.filter')}, a {t('shortcut.clear_filter')}{filter_note}"
 
     for srv in servers:
         name = srv.get("name", "")
         host = srv.get("host", "")
-        group = srv.get("group", "Genel")
-        service = srv.get("service", "Bilinmiyor")
+        group = srv.get("group", t('general.default_group'))
+        service = srv.get("service", t('service.unknown'))
         port = int(srv.get("port", 0))
 
         rtt = ping_host(host)
@@ -303,24 +356,24 @@ def add_server_interactive():
     print_header()
     servers = load_servers()
 
-    console.print("[bold cyan]Yeni sunucu ekleme[/bold cyan]\n")
+    console.print(f"[bold cyan]{t('add.title')}[/bold cyan]\n")
 
     while True:
-        name = input("Sunucu adı (ör. hds.forum): ").strip()
+        name = input(t("add.input_name")).strip()
         if not name:
-            console.print("[red]Ad boş olamaz.[/red]")
+            console.print(f"[red]{t('error.name_required')}[/red]")
             continue
 
-        host = input("Host / IP (ör. 10.10.1.1 veya domain): ").strip()
+        host = input(t("add.input_host")).strip()
         if not host:
-            console.print("[red]Host/IP boş olamaz.[/red]")
+            console.print(f"[red]{t('error.host_required')}[/red]")
             continue
 
-        group = input("Grup (Web, Cihazlar, DB vb. — boş bırakılırsa 'Genel'): ").strip()
+        group = input(t("add.input_group")).strip()
         if not group:
             group = "Genel"
 
-        console.print("\n[bold]Servis tipi seçin:[/bold]")
+        console.print(f"\n[bold]{t('add.select_service')}[/bold]")
         for key, (svc_name, default_port) in SERVICE_CHOICES.items():
             if default_port is not None:
                 console.print(f"  {key}) {svc_name} (port {default_port})")
@@ -329,17 +382,22 @@ def add_server_interactive():
 
         choice = None
         while choice not in SERVICE_CHOICES:
-            choice = input("Seçim (1-9): ").strip()
+            choice = input(t("add.input_service_choice")).strip()
+            if choice not in SERVICE_CHOICES:
+                console.print(f"[red]{t('error.choice_range')}[/red]")
 
         service_name, default_port = SERVICE_CHOICES[choice]
 
         if default_port is None:  # Özel Port
             while True:
-                port_str = input("Port numarası: ").strip()
+                port_str = input(t("add.input_port")).strip()
                 if not port_str.isdigit():
-                    console.print("[red]Geçersiz port.[/red]")
+                    console.print(f"[red]{t('error.port_numeric')}[/red]")
                     continue
                 port = int(port_str)
+                if not (1 <= port <= 65535):
+                    console.print(f"[red]{t('error.port_range')}[/red]")
+                    continue
                 break
         else:
             port = default_port
@@ -354,10 +412,11 @@ def add_server_interactive():
         servers.append(server)
         save_servers(servers)
 
-        console.print(f"[green]Sunucu eklendi:[/green] {name} ({host}:{port} - {service_name})\n")
+        console.print(f"[green]{t('add.added')}[/green] {name} ({host}:{port} - {service_name})\n")
+        app_state.last_action_note = f"{t('note.added_server')} {name}"
 
-        again = input("Başka sunucu eklemek ister misiniz? (E/h): ").strip().lower()
-        if again not in ("e", "evet", ""):
+        again = input(t("add.again")).strip().lower()
+        if again not in ("e", "evet", "y", "yes", ""):
             break
 
 
@@ -368,7 +427,7 @@ def show_servers():
         console.print("[yellow]Kayıtlı sunucu yok.[/yellow]\n")
         return
 
-    console.print("[bold cyan]Kayıtlı sunucular:[/bold cyan]\n")
+    console.print(f"[bold cyan]{t('list.title')}[/bold cyan]\n")
     for idx, srv in enumerate(servers, start=1):
         console.print(
             f"{idx:2d}) [white]{srv.get('name')}[/white] "
@@ -382,10 +441,10 @@ def edit_or_delete_server():
     print_header()
     servers = load_servers()
     if not servers:
-        console.print("[yellow]Düzenlenecek/silinecek sunucu yok.[/yellow]\n")
+        console.print(f"[yellow]{t('edit.no_servers')}[/yellow]\n")
         return
 
-    console.print("[bold cyan]Sunucu düzenle / sil[/bold cyan]\n")
+    console.print(f"[bold cyan]{t('edit.title')}[/bold cyan]\n")
     for idx, srv in enumerate(servers, start=1):
         console.print(
             f"{idx:2d}) [white]{srv.get('name')}[/white] "
@@ -393,11 +452,11 @@ def edit_or_delete_server():
             f"[dim][{srv.get('group', 'Genel')}][/dim]"
         )
 
-    choice = input("\nİşlem yapılacak sunucunun numarası (iptal için boş bırak): ").strip()
+    choice = input(t("edit.select_index")).strip()
     if not choice:
         return
     if not choice.isdigit() or not (1 <= int(choice) <= len(servers)):
-        console.print("[red]Geçersiz seçim.[/red]")
+        console.print(f"[red]{t('error.index_range', max=len(servers))}[/red]")
         return
 
     idx = int(choice) - 1
@@ -405,18 +464,18 @@ def edit_or_delete_server():
     old_key = server_key(srv)
 
     console.print(
-        f"\nSeçili: [white]{srv.get('name')}[/white] "
+        f"\n{t('edit.selected')}: [white]{srv.get('name')}[/white] "
         f"({srv.get('host')} - {srv.get('service')}:{srv.get('port')})\n"
     )
-    console.print("1) Düzenle")
-    console.print("2) Sil")
-    console.print("3) İptal")
+    console.print(f"1) {t('edit.option_edit')}")
+    console.print(f"2) {t('edit.option_delete')}")
+    console.print(f"3) {t('edit.option_cancel')}")
 
-    action = input("Seçiminiz: ").strip()
+    action = input(t("menu.choice_prompt")).strip()
 
     if action == "2":
-        confirm = input("Bu sunucuyu silmek istediğinize emin misiniz? (E/h): ").strip().lower()
-        if confirm in ("e", "evet", ""):
+        confirm = input(t("edit.confirm_delete")).strip().lower()
+        if confirm in ("e", "evet", "y", "yes", ""):
             deleted = servers.pop(idx)
             save_servers(servers)
 
@@ -425,33 +484,34 @@ def edit_or_delete_server():
             stats.pop(old_key, None)
             save_stats(stats)
 
-            console.print(f"[green]Silindi:[/green] {deleted.get('name')}\n")
+            console.print(f"[green]{t('edit.deleted')}[/green] {deleted.get('name')}\n")
+            app_state.last_action_note = f"{t('note.deleted_server')} {deleted.get('name')}"
         return
 
     if action != "1":
         return
 
     # --- Düzenleme --- #
-    console.print("\n[bold cyan]Düzenleme[/bold cyan] (boş bırakırsanız mevcut değer kalır)\n")
+    console.print(f"\n[bold cyan]{t('edit.editing_title')}[/bold cyan] {t('edit.editing_hint')}\n")
 
-    new_name = input(f"Ad [{srv.get('name')}]: ").strip()
+    new_name = input(t("edit.input_name_default", current=srv.get('name'))).strip()
     if new_name:
         srv["name"] = new_name
 
-    new_host = input(f"Host/IP [{srv.get('host')}]: ").strip()
+    new_host = input(t("edit.input_host_default", current=srv.get('host'))).strip()
     if new_host:
         srv["host"] = new_host
 
-    new_group = input(f"Grup [{srv.get('group', 'Genel')}]: ").strip()
+    new_group = input(t("edit.input_group_default", current=srv.get('group', t('general.default_group')))).strip()
     if new_group:
         srv["group"] = new_group
 
     change_service = input(
-        f"Servis [{srv.get('service')}:{srv.get('port')}] değiştirilsin mi? (E/h): "
+        t("edit.input_change_service", service=srv.get('service'), port=srv.get('port'))
     ).strip().lower()
 
     if change_service in ("e", "evet"):
-        console.print("\n[bold]Yeni servis tipi seçin:[/bold]")
+        console.print(f"\n[bold]{t('edit.select_service')}[/bold]")
         for key, (svc_name, default_port) in SERVICE_CHOICES.items():
             if default_port is not None:
                 console.print(f"  {key}) {svc_name} (port {default_port})")
@@ -460,16 +520,19 @@ def edit_or_delete_server():
 
         c = None
         while c not in SERVICE_CHOICES:
-            c = input("Seçim (1-9): ").strip()
+            c = input(t("add.input_service_choice")).strip()
 
         service_name, default_port = SERVICE_CHOICES[c]
         if default_port is None:
             while True:
-                port_str = input("Port numarası: ").strip()
+                port_str = input(t("add.input_port")).strip()
                 if not port_str.isdigit():
-                    console.print("[red]Geçersiz port.[/red]")
+                    console.print(f"[red]{t('error.port_numeric')}[/red]")
                     continue
                 port = int(port_str)
+                if not (1 <= port <= 65535):
+                    console.print(f"[red]{t('error.port_range')}[/red]")
+                    continue
                 break
         else:
             port = default_port
@@ -488,7 +551,8 @@ def edit_or_delete_server():
         stats.pop(old_key, None)
         save_stats(stats)
 
-    console.print("[green]Sunucu güncellendi.[/green]\n")
+    console.print(f"[green]{t('edit.updated')}[/green]\n")
+    app_state.last_action_note = f"{t('note.updated_server')} {srv.get('name')}"
 
 def settings_menu():
     while True:
@@ -517,6 +581,7 @@ def settings_menu():
                 global REFRESH_INTERVAL
                 REFRESH_INTERVAL = v
                 console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
             except Exception:
                 console.print(f"[red]{t('general.invalid_value')}[/red]")
         elif choice == "2":
@@ -524,13 +589,14 @@ def settings_menu():
             try:
                 v = float(val)
                 if v <= 0:
-                    console.print("[red]Sıfırdan büyük bir değer girin.[/red]")
+                    console.print(f"[red]{t('general.gt_zero')}[/red]")
                     continue
                 s["ping_timeout"] = v
                 save_settings(s)
                 global PING_TIMEOUT
                 PING_TIMEOUT = v
                 console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
             except Exception:
                 console.print(f"[red]{t('general.invalid_value')}[/red]")
         elif choice == "3":
@@ -538,13 +604,14 @@ def settings_menu():
             try:
                 v = float(val)
                 if v <= 0:
-                    console.print("[red]Sıfırdan büyük bir değer girin.[/red]")
+                    console.print(f"[red]{t('general.gt_zero')}[/red]")
                     continue
                 s["port_timeout"] = v
                 save_settings(s)
                 global PORT_TIMEOUT
                 PORT_TIMEOUT = v
                 console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
             except Exception:
                 console.print(f"[red]{t('general.invalid_value')}[/red]")
         elif choice == "4":
@@ -555,6 +622,7 @@ def settings_menu():
             global LIVE_FULLSCREEN
             LIVE_FULLSCREEN = b
             console.print(f"[green]{t('general.saved')}[/green]\n")
+            app_state.last_action_note = t('note.settings_updated')
         elif choice == "5":
             val = input(t("settings.input_refresh_hz")).strip()
             try:
@@ -567,6 +635,7 @@ def settings_menu():
                 global REFRESH_PER_SECOND
                 REFRESH_PER_SECOND = v
                 console.print(f"[green]{t('general.saved')}[/green]\n")
+                app_state.last_action_note = t('note.settings_updated')
             except Exception:
                 console.print(f"[red]{t('general.invalid_value')}[/red]")
         elif choice == "6":
@@ -577,8 +646,9 @@ def settings_menu():
             global PREFER_SYSTEM_PING
             PREFER_SYSTEM_PING = b
             console.print(f"[green]{t('general.saved')}[/green]\n")
+            app_state.last_action_note = t('note.settings_updated')
         else:
-            console.print("[red]Geçersiz seçim.[/red]")
+            console.print(f"[red]{t('menu.invalid_choice')}[/red]")
 
 
 # ------- İzleme ------- #
@@ -624,6 +694,12 @@ def monitor_servers():
                     if key == "e":
                         next_action = "edit"
                         break
+                    if key == "g":
+                        next_action = "filter"
+                        break
+                    if key == "a":
+                        next_action = "clear_filter"
+                        break
                 else:
                     servers = load_servers()
                     table = build_table(servers, stats)
@@ -644,6 +720,16 @@ def monitor_servers():
         elif next_action == "edit":
             edit_or_delete_server()
             monitor_servers()
+        elif next_action == "filter":
+            grp = input(t("filter.input_group")).strip()
+            if grp:
+                app_state.current_group_filter = grp
+                app_state.last_action_note = f"{t('note.filter_set')} {grp}"
+            monitor_servers()
+        elif next_action == "clear_filter":
+            app_state.current_group_filter = None
+            app_state.last_action_note = t('note.filter_cleared')
+            monitor_servers()
     except KeyboardInterrupt:
         pass
     finally:
@@ -657,10 +743,7 @@ def first_run_check():
     servers = load_servers()
     if not servers:
         print_header()
-        console.print(
-            "[bold yellow]İlk kez çalıştırılıyor gibi görünüyor.[/bold yellow]\n"
-            "Henüz kayıtlı sunucu yok. Önce birkaç sunucu ekleyelim.\n"
-        )
+        console.print(t('first_run.message'))
         add_server_interactive()
 
 
@@ -670,6 +753,8 @@ def main_menu():
     while True:
         print_header()
         console.print(f"[bold cyan]{t('menu.title')}[/bold cyan]")
+        if 'menu.last_action' in EN_LANG and app_state.last_action_note:
+            console.print(f"[dim]{t('menu.last_action')}: {app_state.last_action_note}[/dim]")
         console.print(f"1) {t('menu.start_monitoring')}")
         console.print(f"2) {t('menu.add_server')}")
         console.print(f"3) {t('menu.list_servers')}")

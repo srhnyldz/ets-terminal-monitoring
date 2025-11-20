@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v1.0
+- Version: v2.0.0
 
 Features
 
@@ -13,6 +13,7 @@ Features
 - Persistent settings in `config.json` and server list in `servers.txt`
 - Keyboard shortcuts in monitor view: `q` quit, `n` add, `s` settings, `l` list, `e` edit
 - Multi-language (default English, Turkish via CLI)
+- State managed via `AppState` (global state removed)
 
 Requirements
 
@@ -41,7 +42,7 @@ Settings
 - Open: Main Menu → Settings or press `s` in monitor view
 - Stored in `config.json` at project root
 - Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
-- Code references: `monitor.py:100-124` for settings I/O, `monitor.py:125-131` for runtime values
+- Code references: `monitor.py:119-146` for settings I/O, `monitor.py:147-153` for runtime values
 
 Shortcuts
 
@@ -51,25 +52,25 @@ Shortcuts
 Internationalization
 
 - Language files: `lang/en.json`, `lang/tr.json`
-- Loader and translation function: `monitor.py:138-156`
-- CLI language: `--lang tr` or positional `tr`: `monitor.py:640-646`
+- Loader and translation function: `monitor.py:160-178`
+- CLI language: `--lang tr` or positional `tr`: `monitor.py:768-795`
 
 Data Files
 
 - Servers list: `servers.txt` (one JSON per line)
 - Stats: `server_stats.json`
-- Logs: `monitor.log`
+- Logs: `monitor.log` (header: `date;group;name;host;service;port;status;ping;uptime`)
 - Settings: `config.json`
 
 Development
 
 - Run with virtualenv active
-- All runtime files are saved relative to the application directory: `monitor.py:32-36`
+- All runtime files are saved relative to the application directory: `monitor.py:40-45`
 
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v1.0
+- Sürüm: v2.0.0
 
 Özellikler
 
@@ -79,6 +80,7 @@ Türkçe
 - `config.json` ayarları ve `servers.txt` sunucu listesi kalıcı
 - İzleme ekranı kısayolları: `q` çıkış, `n` yeni, `s` ayarlar, `l` liste, `e` düzenle
 - Çoklu dil (varsayılan İngilizce, CLI ile Türkçe)
+- Durum yönetimi `AppState` ile, global durum kaldırıldı
 
 Gereksinimler
 
@@ -107,7 +109,7 @@ Ayarlar
 - Aç: Ana Menü → Ayarlar veya izleme ekranında `s`
 - Proje kökünde `config.json` içinde saklanır
 - Anahtarlar: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
-- Kod referansları: Ayar I/O `monitor.py:100-124`, çalışma değerleri `monitor.py:125-131`
+- Kod referansları: Ayar I/O `monitor.py:119-146`, çalışma değerleri `monitor.py:147-153`
 
 Kısayollar
 
@@ -117,17 +119,17 @@ Kısayollar
 Çoklu Dil
 
 - Dil dosyaları: `lang/en.json`, `lang/tr.json`
-- Yükleme ve çeviri fonksiyonu: `monitor.py:138-156`
-- CLI dil: `--lang tr` veya konumsal `tr`: `monitor.py:640-646`
+- Yükleme ve çeviri fonksiyonu: `monitor.py:160-178`
+- CLI dil: `--lang tr` veya konumsal `tr`: `monitor.py:768-795`
 
 Veri Dosyaları
 
 - Sunucular: `servers.txt` (satır başına JSON)
 - İstatistik: `server_stats.json`
-- Log: `monitor.log`
+- Log: `monitor.log` (başlık: `date;group;name;host;service;port;status;ping;uptime`)
 - Ayarlar: `config.json`
 
 Geliştirme
 
 - Sanal ortam aktifken çalıştırın
-- Tüm çalışma dosyaları uygulama dizinine yazılır: `monitor.py:32-36`
+- Tüm çalışma dosyaları uygulama dizinine yazılır: `monitor.py:40-45`
