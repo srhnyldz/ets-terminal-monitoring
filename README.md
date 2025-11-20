@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.4.1
+- Version: v2.4.2
 
 Features
 
@@ -31,7 +31,8 @@ Features
 - Import/Export server list via CLI (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - Incremental backups and restore commands for `servers.txt` (backup directory defaults to `backups/`)
 - Log migration tool to standardize headers in `monitor.log` and rotated files
- - Table search (`/` to set, `x` to clear) and service-based filter (`h` to set, `z` to clear) with indicators in caption
+- Table search (`/` to set, `x` to clear) and service-based filter (`h` to set, `z` to clear) with indicators in caption
+ - Group management menu: list groups, rename, delete, and bulk move servers between groups
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)
@@ -121,7 +122,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.4.1
+- Sürüm: v2.4.2
 
 Özellikler
 
@@ -149,7 +150,8 @@ Türkçe
 - Sunucu listesini CLI ile içe/dışa aktar (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - `servers.txt` için artımlı yedekleme ve geri yükleme komutları (yedek dizini varsayılan `backups/`)
 - Log migrasyon aracı: `monitor.log` ve rotasyon dosyalarında Türkçe başlığı İngilizceye çevirir
- - Tablo arama (`/` ayarla, `x` temizle) ve servise göre filtre (`h` ayarla, `z` temizle); caption’da göstergeler
+- Tablo arama (`/` ayarla, `x` temizle) ve servise göre filtre (`h` ayarla, `z` temizle); caption’da göstergeler
+ - Grup yönetimi menüsü: grupları listele, yeniden adlandır, sil ve sunucuları toplu taşı
 - `monitor.log` için Python logging entegrasyonu ve rotasyon (`RotatingFileHandler`)
 - Log satırları Python `csv` modülü ile yazılır (standardize alanlar)
 - Kaydetme işlemlerinde atomik yazım (temp + `os.replace`)

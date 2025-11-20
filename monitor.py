@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.4.1"
+APP_VERSION = "2.4.2"
 
 class AppState:
     def __init__(self) -> None:
@@ -528,6 +528,82 @@ def edit_or_delete_server():
     console.print(f"[green]{t('edit.updated')}[/green]\n")
     app_state.last_action_note = f"{t('note.updated_server')} {srv.get('name')}"
 
+def group_management_menu():
+    while True:
+        print_header()
+        servers = load_servers()
+        groups: Dict[str, int] = {}
+        for s in servers:
+            g = s.get("group", t("general.default_group"))
+            groups[g] = groups.get(g, 0) + 1
+        console.print(f"[bold cyan]{t('group_menu.title')}[/bold cyan]\n")
+        console.print(f"1) {t('group_menu.list')} ({len(groups)})")
+        console.print(f"2) {t('group_menu.rename')}")
+        console.print(f"3) {t('group_menu.delete')}")
+        console.print(f"4) {t('group_menu.move')}")
+        console.print(f"5) {t('general.back')}")
+        choice = input(t("menu.choice_prompt")).strip()
+        if choice in ("5", "", None):
+            return
+        if choice == "1":
+            console.print(f"[bold]{t('group_menu.groups')}[/bold]")
+            for g, cnt in sorted(groups.items(), key=lambda x: (x[0] != t('general.default_group'), x[0])):
+                console.print(f"- {g}: {cnt}")
+            input(t("menu.choice_prompt"))
+        elif choice == "2":
+            old = input(t("group_menu.input_old")).strip()
+            if not old:
+                continue
+            new = input(t("group_menu.input_new")).strip()
+            if not new:
+                continue
+            changed = 0
+            for s in servers:
+                g = s.get("group", t("general.default_group"))
+                if g == old:
+                    s["group"] = new
+                    changed += 1
+            if changed > 0:
+                save_servers(servers)
+                app_state.last_action_note = f"{t('note.group_renamed')} {old} -> {new}"
+            else:
+                console.print(f"[yellow]{t('group_menu.not_found')}[/yellow]")
+        elif choice == "3":
+            grp = input(t("group_menu.input_delete")).strip()
+            if not grp:
+                continue
+            confirm = input(t("group_menu.confirm_delete", group=grp)).strip().lower()
+            if confirm not in ("e", "evet", "y", "yes", ""):
+                continue
+            to_delete = [s for s in servers if s.get("group", t("general.default_group")) == grp]
+            if not to_delete:
+                console.print(f"[yellow]{t('group_menu.not_found')}[/yellow]")
+                continue
+            remaining = [s for s in servers if s.get("group", t("general.default_group")) != grp]
+            stats = load_stats()
+            for s in to_delete:
+                stats.pop(server_key(s), None)
+            save_stats(stats)
+            save_servers(remaining)
+            app_state.last_action_note = f"{t('note.group_deleted')} {grp}"
+        elif choice == "4":
+            src = input(t("group_menu.input_move_src")).strip()
+            if not src:
+                continue
+            dst = input(t("group_menu.input_move_dst")).strip()
+            if not dst:
+                continue
+            moved = 0
+            for s in servers:
+                if s.get("group", t("general.default_group")) == src:
+                    s["group"] = dst
+                    moved += 1
+            if moved > 0:
+                save_servers(servers)
+                app_state.last_action_note = f"{t('note.group_moved')} {src} -> {dst} ({moved})"
+            else:
+                console.print(f"[yellow]{t('group_menu.not_found')}[/yellow]")
+
 def settings_menu():
     while True:
         print_header()
@@ -823,8 +899,9 @@ def main_menu():
         console.print(f"2) {t('menu.add_server')}")
         console.print(f"3) {t('menu.list_servers')}")
         console.print(f"4) {t('menu.edit_delete')}")
-        console.print(f"5) {t('menu.settings')}")
-        console.print(f"6) {t('menu.exit')}")
+        console.print(f"5) {t('group_menu.title')}")
+        console.print(f"6) {t('menu.settings')}")
+        console.print(f"7) {t('menu.exit')}")
 
         choice = input(t("menu.choice_prompt")).strip()
 
@@ -837,8 +914,10 @@ def main_menu():
         elif choice == "4":
             edit_or_delete_server()
         elif choice == "5":
-            settings_menu()
+            group_management_menu()
         elif choice == "6":
+            settings_menu()
+        elif choice == "7":
             console.print(f"[yellow]{t('menu.exiting')}[/yellow]")
             break
         else:

@@ -15,6 +15,14 @@
   - Filter indicators shown in caption
 - Version bumped to 2.4.1
 
+## v2.4.2 — 2025-11-21
+
+- Group management menu and bulk operations
+  - List groups with counts; rename group
+  - Delete group (removes its servers and their stats)
+  - Bulk move servers between groups
+- Version bumped to 2.4.2
+
 ## v2.3.2 — 2025-11-21
 
 - Log migration tool to standardize headers
