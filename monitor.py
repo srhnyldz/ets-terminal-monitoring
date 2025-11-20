@@ -31,7 +31,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.1.5"
+APP_VERSION = "2.1.6"
 
 class AppState:
     def __init__(self) -> None:
@@ -120,7 +120,7 @@ def load_servers() -> List[Dict[str, Any]]:
 
 
 def save_servers(servers: List[Dict[str, Any]]) -> None:
-    app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers)
+    app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers, validate_server_dict)
 
 
 def load_stats() -> Dict[str, Dict[str, int]]:

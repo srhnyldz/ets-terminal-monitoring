@@ -71,8 +71,9 @@ def _atomic_write_text(path: str, text: str) -> None:
             pass
 
 
-def save_servers(path: str, backup_path: str, servers: List[Dict[str, Any]]) -> None:
-    content = "".join(json.dumps(s, ensure_ascii=False) + "\n" for s in servers)
+def save_servers(path: str, backup_path: str, servers: List[Dict[str, Any]], validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> None:
+    payload = [validator(s) if validator else s for s in servers]
+    content = "".join(json.dumps(s, ensure_ascii=False) + "\n" for s in payload)
     _atomic_write_text(path, content)
     try:
         _atomic_write_text(backup_path, content)

@@ -1,5 +1,14 @@
 # Changelog
 
+# Changelog
+
+## v2.1.6 — 2025-11-20
+
+- Enabled optional schema validation using `pydantic` for Server and Settings
+- Applied validation during load and save (servers persisted via validated payloads)
+- Kept `pydantic` optional; app runs without it
+- Version bumped to 2.1.6
+
 ## v2.1.5 — 2025-11-20
 
 - Added file locking to prevent race conditions during writes

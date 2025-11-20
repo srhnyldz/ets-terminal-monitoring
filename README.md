@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.1.5
+- Version: v2.1.6
 
 Features
 
@@ -11,6 +11,7 @@ Features
 - Ping via `ping3` with automatic fallback to system `ping`
 - Configurable refresh interval, timeouts, fullscreen, refresh rate, system ping preference
 - Persistent settings in `config.json` and server list in `servers.txt`
+- Optional schema validation for Server and Settings via `pydantic`
 - Keyboard shortcuts in monitor view: `q` quit, `n` add, `s` settings, `l` list, `e` edit
 - Multi-language (default English, Turkish via CLI)
 - State managed via `AppState` (global state removed)
@@ -53,7 +54,7 @@ Settings
 - Open: Main Menu → Settings or press `s` in monitor view
 - Stored in `config.json` at project root
 - Keys: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
-- Code references: `monitor.py:119-146` for settings I/O, `monitor.py:147-153` for runtime values
+- Code references: `monitor.py:133-146` for settings I/O, `monitor.py:147-153` for runtime values
 
 Shortcuts
 
@@ -88,7 +89,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.1.5
+- Sürüm: v2.1.6
 
 Özellikler
 
@@ -96,6 +97,7 @@ Türkçe
 - `ping3` ile ping, başarısızsa sistem `ping` düşüşü
 - Ayarlanabilir güncelleme sıklığı, zaman aşımı, tam ekran, yenileme hızı, sistem ping tercihi
 - `config.json` ayarları ve `servers.txt` sunucu listesi kalıcı
+- `pydantic` ile sunucu ve ayarlar için opsiyonel şema doğrulama
 - İzleme ekranı kısayolları: `q` çıkış, `n` yeni, `s` ayarlar, `l` liste, `e` düzenle
 - Çoklu dil (varsayılan İngilizce, CLI ile Türkçe)
 - Durum yönetimi `AppState` ile, global durum kaldırıldı
@@ -138,7 +140,7 @@ Ayarlar
 - Aç: Ana Menü → Ayarlar veya izleme ekranında `s`
 - Proje kökünde `config.json` içinde saklanır
 - Anahtarlar: `refresh_interval`, `ping_timeout`, `port_timeout`, `live_fullscreen`, `refresh_per_second`, `prefer_system_ping`
-- Kod referansları: Ayar I/O `monitor.py:119-146`, çalışma değerleri `monitor.py:147-153`
+- Kod referansları: Ayar I/O `monitor.py:133-146`, çalışma değerleri `monitor.py:147-153`
 
 Kısayollar
 
