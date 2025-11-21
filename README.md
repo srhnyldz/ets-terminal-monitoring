@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.6.6
+- Version: v2.7.0
 
 Features
 
@@ -24,9 +24,10 @@ Features
 - FastAPI-based REST API skeleton (servers, settings, stats, logs; CORS)
 - CLI integration with Remote API (read-only) via `--api-url`
 - Expanded i18n coverage; CLI and system messages are translatable
- - Dead code cleanup across modules; integrated `vulture` scan
- - Updated `mypy.ini` to Python 3.11 for compatibility
+- Dead code cleanup across modules; integrated `vulture` scan
+- Updated `mypy.ini` to Python 3.11 for compatibility
 - API run example: `uvicorn ets_tm.api:app --reload`
+ - Textual TUI mode: `python monitor.py --tui` (requires `pip install textual`)
  - Background monitoring service (periodic ping/port; logs & stats updates)
 - Basic unit tests with `unittest` (`tests/`)
 - PyTest skeleton with initial tests (ping/port, i18n)
@@ -138,7 +139,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.6.6
+- Sürüm: v2.7.0
 
 Özellikler
 
@@ -159,9 +160,10 @@ Türkçe
 - FastAPI tabanlı REST API iskeleti (servers, settings, stats, logs; CORS)
 - CLI ile Remote API entegrasyonu (salt-okuma) `--api-url`
 - Genişletilmiş i18n kapsamı; CLI ve sistem mesajları çevrilebilir
- - Modüller arası dead code temizliği; `vulture` ile tarama entegre
- - Uyumluluk için `mypy.ini` Python 3.11’e güncellendi
+- Modüller arası dead code temizliği; `vulture` ile tarama entegre
+- Uyumluluk için `mypy.ini` Python 3.11’e güncellendi
 - API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
+ - Textual TUI modu: `python monitor.py --tui` (gerektirir: `pip install textual`)
  - Arka plan izleme servisi (periyodik ping/port; log ve istatistik güncelleme)
 - Temel birim testleri `unittest` ile (`tests/`)
  - PyTest iskeleti ve ilk testler (ping/port, i18n)

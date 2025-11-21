@@ -130,6 +130,7 @@
   "migrate.migrated_count": "Migrated {count} file(s)",
   "migrate.no_changes": "No changes",
   "import.none": "No servers imported",
+  "tui.missing": "Textual is not installed. Please install: pip install textual",
   "remote.read_only": "[yellow]Remote mode: save not supported[/yellow]",
   "table.last_update": "Last Update",
   "add.title": "Add new server",

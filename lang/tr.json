@@ -130,6 +130,7 @@
   "migrate.migrated_count": "{count} dosya(lar) taşındı",
   "migrate.no_changes": "Değişiklik yok",
   "import.none": "İçe aktarılan sunucu yok",
+  "tui.missing": "Textual kurulu değil. Lütfen yükleyin: pip install textual",
   "remote.read_only": "[yellow]Uzaktan mod: kaydetme desteklenmiyor[/yellow]",
   "table.last_update": "Son Güncelleme",
   "add.title": "Yeni sunucu ekleme",

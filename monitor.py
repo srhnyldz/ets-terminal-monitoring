@@ -27,7 +27,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.6.6"
+APP_VERSION = "2.7.0"
 
 class AppState:
     def __init__(self) -> None:
@@ -368,6 +368,109 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
         deps["app_name"],
         deps["app_url"],
     )
+
+def run_textual_tui():
+    try:
+        from textual.app import App
+        from textual.widgets import Static, Header, Footer
+    except Exception:
+        console.print(t('tui.missing'))
+        return
+    class TuiApp(App):
+        def __init__(self):
+            super().__init__()
+            self.view_widget = Static()
+        def compose(self):
+            yield Header()
+            yield self.view_widget
+            yield Footer()
+        def on_mount(self):
+            self.set_interval(max(0.5, float(REFRESH_INTERVAL)), self._refresh)
+        def _refresh(self):
+            servers = load_servers()
+            stats = load_stats()
+            table = build_table(servers, stats)
+            self.view_widget.update(table)
+            save_stats(stats)
+        def key_q(self):
+            self.exit()
+        def key_n(self):
+            self.exit(result='add')
+        def key_s(self):
+            self.exit(result='settings')
+        def key_l(self):
+            self.exit(result='list')
+        def key_e(self):
+            self.exit(result='edit')
+        def key_g(self):
+            self.exit(result='filter')
+        def key_a(self):
+            self.exit(result='clear_filter')
+        def key_slash(self):
+            self.exit(result='search')
+        def key_x(self):
+            self.exit(result='clear_search')
+        def key_h(self):
+            self.exit(result='service_filter')
+        def key_z(self):
+            self.exit(result='clear_service_filter')
+        def key_r(self):
+            app_state.sort_desc = not bool(getattr(app_state, 'sort_desc', False))
+        def key_right_bracket(self):
+            app_state.current_page += 1
+        def key_left_bracket(self):
+            app_state.current_page = max(1, app_state.current_page - 1)
+        def key_greater_than(self):
+            keys = ['group','name','host','service','port']
+            i = keys.index(app_state.current_sort_key) if app_state.current_sort_key in keys else 0
+            app_state.current_sort_key = keys[(i + 1) % len(keys)]
+        def key_less_than(self):
+            keys = ['group','name','host','service','port']
+            i = keys.index(app_state.current_sort_key) if app_state.current_sort_key in keys else 0
+            app_state.current_sort_key = keys[(i - 1) % len(keys)]
+    res = TuiApp().run()
+    if res == 'add':
+        add_server_interactive()
+        run_textual_tui()
+    elif res == 'settings':
+        settings_menu()
+        run_textual_tui()
+    elif res == 'list':
+        show_servers()
+        run_textual_tui()
+    elif res == 'edit':
+        edit_or_delete_server()
+        run_textual_tui()
+    elif res == 'filter':
+        grp = input(t('filter.input_group')).strip()
+        if grp:
+            app_state.current_group_filter = grp
+            app_state.last_action_note = f"{t('note.filter_set')} {grp}"
+        run_textual_tui()
+    elif res == 'search':
+        q = input(t('search.input_query')).strip()
+        if q:
+            app_state.current_search_query = q
+            app_state.last_action_note = f"{t('note.search_set')} {q}"
+        run_textual_tui()
+    elif res == 'clear_search':
+        app_state.current_search_query = None
+        app_state.last_action_note = t('note.search_cleared')
+        run_textual_tui()
+    elif res == 'service_filter':
+        svc = input(t('service_filter.input_service')).strip()
+        if svc:
+            app_state.current_service_filter = svc
+            app_state.last_action_note = f"{t('note.service_filter_set')} {svc}"
+        run_textual_tui()
+    elif res == 'clear_service_filter':
+        app_state.current_service_filter = None
+        app_state.last_action_note = t('note.service_filter_cleared')
+        run_textual_tui()
+    elif res == 'clear_filter':
+        app_state.current_group_filter = None
+        app_state.last_action_note = t('note.filter_cleared')
+        run_textual_tui()
 
 
 # ------- Kullanıcı Etkileşimi: Ekle / Listele / Düzenle-Sil ------- #
@@ -997,6 +1100,7 @@ if __name__ == "__main__":
     parser.add_argument("pos_lang", nargs="?", help="language code like 'en' or 'tr'")
     parser.add_argument("--lang", dest="lang", help="language code like 'en' or 'tr'")
     parser.add_argument("--api-url", dest="api_url", help="remote API base URL like 'http://127.0.0.1:8000'")
+    parser.add_argument("--tui", dest="use_tui", action="store_true", help="run Textual TUI mode")
     parser.add_argument("--version", "-V", action="store_true", help="print version and exit")
     parser.add_argument("--add", action="store_true", help="open add server flow")
     parser.add_argument("--list", dest="list_servers", action="store_true", help="list saved servers")
@@ -1103,6 +1207,8 @@ if __name__ == "__main__":
             console.print(t('restore.restored_from', path=args.restore_servers))
         else:
             console.print(t('restore.failed'))
+    elif args.use_tui:
+        run_textual_tui()
     elif args.export_json:
         servers = load_servers()
         app_io.export_servers_json(args.export_json, servers)

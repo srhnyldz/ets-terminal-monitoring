@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.7.0 — 2025-11-21
+
+- Textual TUI mode
+  - New `--tui` flag to run Textual terminal UI
+  - Reuses existing Rich table rendering inside Textual
+  - Supports filters, search, pagination, sorting, and shortcuts
+  - Graceful fallback with i18n message if Textual is not installed
+- Docs
+  - README updated with `--tui` usage (EN/TR)
+- Version bumped to 2.7.0
+
 ## v2.6.6 — 2025-11-21
 
 - Code cleanup and dead-code pruning
