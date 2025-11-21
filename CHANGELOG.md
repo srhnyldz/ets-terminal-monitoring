@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.6.0 — 2025-11-21
+
+- Architecture modularization (skeleton)
+  - Domain types for servers, settings, stats (`TypedDict`)
+  - File-based repository adapter for servers/stats/settings
+  - Monitoring and Group services layered over core functions
+- No behavior change; groundwork for FastAPI and Textual integration
+- Version bumped to 2.6.0
+
 ## v2.5.1 — 2025-11-21
 
 - Safe parameter validation for system `ping` fallback
