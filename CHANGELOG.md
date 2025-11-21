@@ -1,5 +1,16 @@
 # Changelog
 
+## v2.6.6 — 2025-11-21
+
+- Code cleanup and dead-code pruning
+  - Removed unused `GroupService` from `ets_tm/services.py`
+  - Removed unused `_fmt` helper from `ets_tm/ui.py`
+  - Removed unused imports in `monitor.py`
+  - Verified with `vulture` dead-code scan
+- Tooling alignment
+  - Updated `mypy.ini` to `python_version = 3.11` to avoid site-packages syntax errors
+- All tests passing (13/13), lint and typecheck clean
+
 ## v2.6.5 — 2025-11-21
 
 - Internationalization expansion

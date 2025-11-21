@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Tuple, List
+from typing import Any, Dict, Optional, Tuple
 from .core import ping_host as core_ping_host, check_port as core_check_port
 
 
@@ -22,26 +22,4 @@ class MonitoringService:
         return (rtt, is_open)
 
 
-class GroupService:
-    @staticmethod
-    def rename_group(servers: List[Dict[str, Any]], old: str, new: str) -> int:
-        changed = 0
-        for s in servers:
-            g = s.get("group")
-            if g == old:
-                s["group"] = new
-                changed += 1
-        return changed
-
-    @staticmethod
-    def delete_group(servers: List[Dict[str, Any]], grp: str) -> List[Dict[str, Any]]:
-        return [s for s in servers if s.get("group") != grp]
-
-    @staticmethod
-    def move_group(servers: List[Dict[str, Any]], src: str, dst: str) -> int:
-        moved = 0
-        for s in servers:
-            if s.get("group") == src:
-                s["group"] = dst
-                moved += 1
-        return moved
+# GroupService removed due to unused status in current CLI flows

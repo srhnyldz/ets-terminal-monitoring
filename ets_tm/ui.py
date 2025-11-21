@@ -108,8 +108,6 @@ def build_table(
     metrics = get_summary_metrics()
     m1 = metrics.get("1h", {})
     m2 = metrics.get("24h", {})
-    def _fmt(v, suf=""):
-        return "-" if v is None else (f"{v:.1f}{suf}" if isinstance(v, float) else str(v))
     pref = f"{t('summary.title')}: "
     label_w = max(len(t('summary.1h')), len(t('summary.24h')))
     def _pad(x, w):

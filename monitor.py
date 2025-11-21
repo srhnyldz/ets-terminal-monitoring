@@ -10,7 +10,6 @@ import select
 import termios
 import tty
 import urllib.request
-import urllib.error
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, List, Dict, Any
@@ -28,7 +27,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.6.5"
+APP_VERSION = "2.6.6"
 
 class AppState:
     def __init__(self) -> None:

@@ -12,4 +12,4 @@ from .app_io import (
 from .ui import build_table as build_table
 from .domain import Server as Server, Settings as Settings, Stats as Stats, StatsEntry as StatsEntry
 from .repo import FileRepository as FileRepository
-from .services import MonitoringService as MonitoringService, GroupService as GroupService
+from .services import MonitoringService as MonitoringService
