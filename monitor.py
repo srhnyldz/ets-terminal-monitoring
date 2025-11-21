@@ -28,7 +28,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.6.4"
+APP_VERSION = "2.6.5"
 
 class AppState:
     def __init__(self) -> None:
@@ -165,7 +165,7 @@ def load_servers() -> List[Dict[str, Any]]:
 
 def save_servers(servers: List[Dict[str, Any]]) -> None:
     if API_URL:
-        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        console.print(t('remote.read_only'))
         return
     app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers, validate_server_dict)
     try:
@@ -186,7 +186,7 @@ def load_stats() -> Dict[str, Dict[str, int]]:
 
 def save_stats(stats: Dict[str, Dict[str, int]]) -> None:
     if API_URL:
-        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        console.print(t('remote.read_only'))
         return
     app_io.save_stats(STATS_FILE, stats)
 
@@ -214,7 +214,7 @@ def load_settings() -> Dict[str, Any]:
 
 def save_settings(settings: Dict[str, Any]) -> None:
     if API_URL:
-        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        console.print(t('remote.read_only'))
         return
     app_io.save_settings(SETTINGS_FILE, settings, validate_settings_dict)
 
@@ -1037,7 +1037,7 @@ if __name__ == "__main__":
                     json.dump(en, f, ensure_ascii=False, indent=2)
                 console.print(f"[green]{t('lang.added')}[/green] {p}")
             except Exception:
-                console.print("[red]Failed to add language[/red]")
+                console.print(t('lang.add_failed'))
     elif args.check_language:
         code = args.check_language.strip()
         en = load_language("en")
@@ -1078,32 +1078,32 @@ if __name__ == "__main__":
                 pass
         print_header()
         if changed > 0:
-            console.print(f"[green]Migrated[/green] {changed} file(s)")
+            console.print(t('migrate.migrated_count', count=changed))
         else:
-            console.print("[yellow]No changes[/yellow]")
+            console.print(t('migrate.no_changes'))
     elif args.backup_servers:
         target_dir = args.backup_servers or BACKUPS_DIR
         built = app_io.incremental_backup(CONFIG_FILE, target_dir, prefix="servers", max_count=100)
         print_header()
         if built:
-            console.print(f"[green]Backup created[/green] -> {built}")
+            console.print(t('backup.created_to', path=built))
         else:
-            console.print("[red]Backup failed[/red]")
+            console.print(t('backup.failed'))
     elif args.restore_latest:
         source_dir = args.restore_latest or BACKUPS_DIR
         latest = app_io.find_latest_backup(source_dir, prefix="servers")
         print_header()
         if latest and app_io.restore_file_from_backup(CONFIG_FILE, latest):
-            console.print(f"[green]Restored[/green] <- {latest}")
+            console.print(t('restore.restored_from', path=latest))
         else:
-            console.print("[red]Restore failed[/red]")
+            console.print(t('restore.failed'))
     elif args.restore_servers:
         ok = app_io.restore_file_from_backup(CONFIG_FILE, args.restore_servers)
         print_header()
         if ok:
-            console.print(f"[green]Restored[/green] <- {args.restore_servers}")
+            console.print(t('restore.restored_from', path=args.restore_servers))
         else:
-            console.print("[red]Restore failed[/red]")
+            console.print(t('restore.failed'))
     elif args.export_json:
         servers = load_servers()
         app_io.export_servers_json(args.export_json, servers)
@@ -1122,7 +1122,7 @@ if __name__ == "__main__":
             console.print(f"[green]Imported[/green] <- {args.import_json}")
         else:
             print_header()
-            console.print("[red]No servers imported[/red]")
+            console.print(t('import.none'))
     elif args.import_csv:
         incoming = app_io.import_servers_csv(args.import_csv, validate_server_dict)
         if incoming:
@@ -1131,7 +1131,7 @@ if __name__ == "__main__":
             console.print(f"[green]Imported[/green] <- {args.import_csv}")
         else:
             print_header()
-            console.print("[red]No servers imported[/red]")
+            console.print(t('import.none'))
     elif args.add:
         add_server_interactive()
     elif args.list_servers:

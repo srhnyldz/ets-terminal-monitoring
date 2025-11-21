@@ -87,7 +87,7 @@ repo = FileRepository(
     settings_validator=_validate_settings,
 )
 
-app = FastAPI(title="ETS Terminal Monitoring API", version="2.6.4")
+app = FastAPI(title="ETS Terminal Monitoring API", version="2.6.5")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -168,4 +168,4 @@ def check_server(index: int) -> Dict[str, Any]:
 
 @app.get("/version", response_model=VersionInfo)
 def version() -> Dict[str, str]:
-    return {"app": "ETS Terminal Monitoring API", "version": "2.6.4"}
+    return {"app": "ETS Terminal Monitoring API", "version": "2.6.5"}

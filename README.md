@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.6.4
+- Version: v2.6.5
 
 Features
 
@@ -23,6 +23,7 @@ Features
 - Modular architecture: domain/service/repository skeleton for FastAPI and Textual
 - FastAPI-based REST API skeleton (servers, settings, stats, logs; CORS)
 - CLI integration with Remote API (read-only) via `--api-url`
+ - Expanded i18n coverage; CLI and system messages are translatable
 - API run example: `uvicorn ets_tm.api:app --reload`
  - Background monitoring service (periodic ping/port; logs & stats updates)
 - Basic unit tests with `unittest` (`tests/`)
@@ -135,7 +136,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.6.4
+- Sürüm: v2.6.5
 
 Özellikler
 
@@ -155,6 +156,7 @@ Türkçe
 - Modüler mimari: domain/servis/repo iskeleti; FastAPI ve Textual hazırlığı
 - FastAPI tabanlı REST API iskeleti (servers, settings, stats, logs; CORS)
 - CLI ile Remote API entegrasyonu (salt-okuma) `--api-url`
+ - Genişletilmiş i18n kapsamı; CLI ve sistem mesajları çevrilebilir
 - API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
  - Arka plan izleme servisi (periyodik ping/port; log ve istatistik güncelleme)
 - Temel birim testleri `unittest` ile (`tests/`)

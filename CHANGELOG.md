@@ -1,5 +1,14 @@
 # Changelog
 
+## v2.6.5 — 2025-11-21
+
+- Internationalization expansion
+  - Converted hard-coded CLI/system messages to i18n keys
+  - Added new keys in `lang/en.json` and `lang/tr.json` (remote mode warnings, backup/restore/migrate/import messages)
+- Code cleanup
+  - Addressed lint warnings (ambiguous variable names, extraneous f-strings)
+- Version bumped to 2.6.5
+
 ## v2.6.4 — 2025-11-21
 
 - CLI integration with Remote API (read-only)
