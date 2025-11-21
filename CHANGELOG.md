@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6.3 — 2025-11-21
+
+- OpenAPI schema and Pydantic models
+  - Request/response types stabilized across all API endpoints
+  - Added `/version` endpoint exposing API version
+- Version bumped to 2.6.3
+
 ## v2.6.2 — 2025-11-21
 
 - Storage layer abstraction and background monitoring
