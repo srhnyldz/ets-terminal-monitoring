@@ -27,7 +27,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.7.0"
+APP_VERSION = "2.7.1"
 
 class AppState:
     def __init__(self) -> None:
@@ -372,62 +372,156 @@ def build_table(servers: List[Dict[str, Any]], stats: Dict[str, Dict[str, int]])
 def run_textual_tui():
     try:
         from textual.app import App
-        from textual.widgets import Static, Header, Footer
+        from textual.widgets import Header, Footer, DataTable, Input
     except Exception:
         console.print(t('tui.missing'))
         return
     class TuiApp(App):
+        CSS = """Screen {layout: vertical} #cmd {dock: top} DataTable {height: 1fr}"""
         def __init__(self):
             super().__init__()
-            self.view_widget = Static()
+            self.table = DataTable()
+            self.cmd = Input(placeholder="/")
+            self._mode = None
         def compose(self):
             yield Header()
-            yield self.view_widget
+            yield self.cmd
+            yield self.table
             yield Footer()
         def on_mount(self):
-            self.set_interval(max(0.5, float(REFRESH_INTERVAL)), self._refresh)
+            self.cmd.display = False
+            self.table.clear(columns=True)
+            self.table.add_columns(
+                t("table.group"), t("table.name"), t("table.host"), t("table.service"), t("table.port")
+            )
+            if API_URL:
+                try:
+                    import websockets
+                    import json as _json
+                    async def _ws():
+                        ws_url = API_URL.replace("http", "ws") + "/ws/servers"
+                        async with websockets.connect(ws_url) as conn:
+                            async for msg in conn:
+                                payload = _json.loads(msg)
+                                self._update(payload.get("servers", []))
+                    self.run_worker(_ws())
+                except Exception:
+                    self.set_interval(max(0.5, float(REFRESH_INTERVAL)), self._refresh)
+            else:
+                self.set_interval(max(0.5, float(REFRESH_INTERVAL)), self._refresh)
+        def _filtered_sorted(self, servers):
+            s = servers
+            if app_state.current_group_filter:
+                s = [x for x in s if x.get("group", t("general.default_group")) == app_state.current_group_filter]
+            q = app_state.current_search_query
+            if q:
+                ql = q.lower()
+                def _hit(x):
+                    return (
+                        ql in str(x.get("group", t("general.default_group"))).lower()
+                        or ql in str(x.get("name", "")).lower()
+                        or ql in str(x.get("host", "")).lower()
+                        or ql in str(x.get("service", "")).lower()
+                    )
+                s = [x for x in s if _hit(x)]
+            svc = app_state.current_service_filter
+            if svc:
+                s = [x for x in s if x.get("service", "") == svc]
+            key = app_state.current_sort_key
+            desc = bool(app_state.sort_desc)
+            def _val(x):
+                if key == "group":
+                    return x.get("group", t("general.default_group"))
+                if key == "name":
+                    return x.get("name", "")
+                if key == "host":
+                    return x.get("host", "")
+                if key == "service":
+                    return x.get("service", "")
+                if key == "port":
+                    return int(x.get("port", 0))
+                return x.get("name", "")
+            s.sort(key=_val, reverse=desc)
+            total = len(s)
+            total_pages = max(1, (total + max(1, PAGE_SIZE) - 1) // max(1, PAGE_SIZE))
+            try:
+                app_state.current_page = min(max(1, app_state.current_page), total_pages)
+            except Exception:
+                app_state.current_page = 1
+            start = (app_state.current_page - 1) * max(1, PAGE_SIZE)
+            end = start + max(1, PAGE_SIZE)
+            return s[start:end]
+        def _update(self, servers):
+            self.table.clear(rows=True)
+            for s in self._filtered_sorted(servers):
+                self.table.add_row(
+                    str(s.get("group", t("general.default_group"))),
+                    str(s.get("name", "")),
+                    str(s.get("host", "")),
+                    str(s.get("service", "")),
+                    str(int(s.get("port", 0)) or 0),
+                )
         def _refresh(self):
-            servers = load_servers()
-            stats = load_stats()
-            table = build_table(servers, stats)
-            self.view_widget.update(table)
-            save_stats(stats)
+            self._update(load_servers())
+        def on_input_submitted(self, event: Input.Submitted):
+            val = event.value.strip()
+            if self._mode == "search":
+                app_state.current_search_query = val or None
+                app_state.last_action_note = t("note.search_set") if val else t("note.search_cleared")
+            elif self._mode == "service":
+                app_state.current_service_filter = val or None
+                app_state.last_action_note = t("note.service_filter_set") if val else t("note.service_filter_cleared")
+            elif self._mode == "group":
+                app_state.current_group_filter = val or None
+                app_state.last_action_note = t("note.filter_set") if val else t("note.filter_cleared")
+            self.cmd.value = ""
+            self.cmd.display = False
+            self._refresh()
         def key_q(self):
             self.exit()
-        def key_n(self):
-            self.exit(result='add')
-        def key_s(self):
-            self.exit(result='settings')
-        def key_l(self):
-            self.exit(result='list')
-        def key_e(self):
-            self.exit(result='edit')
-        def key_g(self):
-            self.exit(result='filter')
-        def key_a(self):
-            self.exit(result='clear_filter')
         def key_slash(self):
-            self.exit(result='search')
-        def key_x(self):
-            self.exit(result='clear_search')
+            self._mode = "search"
+            self.cmd.placeholder = t("search.caption")
+            self.cmd.display = True
+            self.cmd.focus()
         def key_h(self):
-            self.exit(result='service_filter')
+            self._mode = "service"
+            self.cmd.placeholder = t("service_filter.caption")
+            self.cmd.display = True
+            self.cmd.focus()
+        def key_g(self):
+            self._mode = "group"
+            self.cmd.placeholder = t("filter.caption")
+            self.cmd.display = True
+            self.cmd.focus()
+        def key_x(self):
+            app_state.current_search_query = None
+            self._refresh()
         def key_z(self):
-            self.exit(result='clear_service_filter')
+            app_state.current_service_filter = None
+            self._refresh()
+        def key_a(self):
+            app_state.current_group_filter = None
+            self._refresh()
         def key_r(self):
             app_state.sort_desc = not bool(getattr(app_state, 'sort_desc', False))
+            self._refresh()
         def key_right_bracket(self):
             app_state.current_page += 1
+            self._refresh()
         def key_left_bracket(self):
             app_state.current_page = max(1, app_state.current_page - 1)
+            self._refresh()
         def key_greater_than(self):
             keys = ['group','name','host','service','port']
             i = keys.index(app_state.current_sort_key) if app_state.current_sort_key in keys else 0
             app_state.current_sort_key = keys[(i + 1) % len(keys)]
+            self._refresh()
         def key_less_than(self):
             keys = ['group','name','host','service','port']
             i = keys.index(app_state.current_sort_key) if app_state.current_sort_key in keys else 0
             app_state.current_sort_key = keys[(i - 1) % len(keys)]
+            self._refresh()
     res = TuiApp().run()
     if res == 'add':
         add_server_interactive()

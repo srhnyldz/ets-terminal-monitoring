@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.7.0
+- Version: v2.7.1
 
 Features
 
@@ -27,7 +27,8 @@ Features
 - Dead code cleanup across modules; integrated `vulture` scan
 - Updated `mypy.ini` to Python 3.11 for compatibility
 - API run example: `uvicorn ets_tm.api:app --reload`
- - Textual TUI mode: `python monitor.py --tui` (requires `pip install textual`)
+- Textual TUI mode: `python monitor.py --tui` (requires `pip install textual`)
+ - TUI live data from API: automatically uses WebSocket (`pip install websockets`) if available, falls back to HTTP polling
  - Background monitoring service (periodic ping/port; logs & stats updates)
 - Basic unit tests with `unittest` (`tests/`)
 - PyTest skeleton with initial tests (ping/port, i18n)
@@ -139,7 +140,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.7.0
+- Sürüm: v2.7.1
 
 Özellikler
 
@@ -163,7 +164,8 @@ Türkçe
 - Modüller arası dead code temizliği; `vulture` ile tarama entegre
 - Uyumluluk için `mypy.ini` Python 3.11’e güncellendi
 - API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
- - Textual TUI modu: `python monitor.py --tui` (gerektirir: `pip install textual`)
+- Textual TUI modu: `python monitor.py --tui` (gerektirir: `pip install textual`)
+ - TUI canlı veri: mevcutsa WebSocket’i otomatik kullanır (`pip install websockets`), değilse HTTP polling’e düşer
  - Arka plan izleme servisi (periyodik ping/port; log ve istatistik güncelleme)
 - Temel birim testleri `unittest` ile (`tests/`)
  - PyTest iskeleti ve ilk testler (ping/port, i18n)

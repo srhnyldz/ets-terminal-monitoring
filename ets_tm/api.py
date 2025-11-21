@@ -1,6 +1,8 @@
 from typing import Any, Dict, List, Optional
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+import asyncio
+import json
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from .repo import FileRepository
 from .services import MonitoringService
@@ -87,7 +89,7 @@ repo = FileRepository(
     settings_validator=_validate_settings,
 )
 
-app = FastAPI(title="ETS Terminal Monitoring API", version="2.7.0")
+app = FastAPI(title="ETS Terminal Monitoring API", version="2.7.1")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -168,4 +170,19 @@ def check_server(index: int) -> Dict[str, Any]:
 
 @app.get("/version", response_model=VersionInfo)
 def version() -> Dict[str, str]:
-    return {"app": "ETS Terminal Monitoring API", "version": "2.7.0"}
+    return {"app": "ETS Terminal Monitoring API", "version": "2.7.1"}
+
+
+@app.websocket("/ws/servers")
+async def ws_servers(ws: WebSocket) -> None:
+    await ws.accept()
+    try:
+        while True:
+            s = repo.get_settings(DEFAULTS)
+            servers = repo.get_servers()
+            stats = repo.get_stats()
+            payload = json.dumps({"servers": servers, "stats": stats})
+            await ws.send_text(payload)
+            await asyncio.sleep(float(s.get("refresh_interval", 2.0)))
+    except WebSocketDisconnect:
+        return

@@ -1,5 +1,17 @@
 # Changelog
 
+## v2.7.1 — 2025-11-21
+
+- Textual TUI enhancements
+  - In‑TUI search and filters via `Input` widget
+  - `DataTable` rendering with pagination and sorting
+- Live data from API
+  - WebSocket endpoint `/ws/servers` added; TUI consumes it when `--api-url` is set
+  - Fallback to HTTP polling if WebSocket unavailable
+- Docs
+  - README updated with WebSocket/TUI usage
+- Version bumped to 2.7.1
+
 ## v2.7.0 — 2025-11-21
 
 - Textual TUI mode
