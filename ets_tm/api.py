@@ -33,7 +33,7 @@ repo = FileRepository(
     SETTINGS_FILE,
 )
 
-app = FastAPI(title="ETS Terminal Monitoring API", version="2.6.1")
+app = FastAPI(title="ETS Terminal Monitoring API", version="2.6.2")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

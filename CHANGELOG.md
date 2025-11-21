@@ -1,5 +1,12 @@
 # Changelog
 
+## v2.6.2 — 2025-11-21
+
+- Storage layer abstraction and background monitoring
+  - BackgroundMonitor: periodic ping/port checks, writes logs and updates stats
+  - FileRepository solidified for servers/stats/settings with atomic writes and locking
+- Version bumped to 2.6.2
+
 ## v2.6.1 — 2025-11-21
 
 - FastAPI REST API skeleton

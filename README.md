@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.6.1
+- Version: v2.6.2
 
 Features
 
@@ -21,8 +21,9 @@ Features
 - Minimal dependency injection and wiring via `bootstrap()` in the app
 - Package modules under `ets_tm/` with cleaned imports
 - Modular architecture: domain/service/repository skeleton for FastAPI and Textual
- - FastAPI-based REST API skeleton (servers, settings, stats, logs; CORS)
- - API run example: `uvicorn ets_tm.api:app --reload`
+- FastAPI-based REST API skeleton (servers, settings, stats, logs; CORS)
+- API run example: `uvicorn ets_tm.api:app --reload`
+ - Background monitoring service (periodic ping/port; logs & stats updates)
 - Basic unit tests with `unittest` (`tests/`)
 - PyTest skeleton with initial tests (ping/port, i18n)
 - Concurrent ping/port checks via `asyncio`
@@ -132,7 +133,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.6.1
+- Sürüm: v2.6.2
 
 Özellikler
 
@@ -150,8 +151,9 @@ Türkçe
 - Uygulama içinde `bootstrap()` ile minimal bağımlılık enjeksiyonu ve wiring
 - Modüller `ets_tm/` altında paketlendi; import yolları temizlendi
 - Modüler mimari: domain/servis/repo iskeleti; FastAPI ve Textual hazırlığı
- - FastAPI tabanlı REST API iskeleti (servers, settings, stats, logs; CORS)
- - API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
+- FastAPI tabanlı REST API iskeleti (servers, settings, stats, logs; CORS)
+- API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
+ - Arka plan izleme servisi (periyodik ping/port; log ve istatistik güncelleme)
 - Temel birim testleri `unittest` ile (`tests/`)
  - PyTest iskeleti ve ilk testler (ping/port, i18n)
   - `asyncio` ile ping/port kontrollerinde eşzamanlılık
