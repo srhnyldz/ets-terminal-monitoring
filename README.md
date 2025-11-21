@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.5.0
+- Version: v2.5.2
 
 Features
 
@@ -31,10 +31,12 @@ Features
 - Import/Export server list via CLI (`--export-json`, `--export-csv`, `--import-json`, `--import-csv`)
 - Incremental backups and restore commands for `servers.txt` (backup directory defaults to `backups/`)
 - Log migration tool to standardize headers in `monitor.log` and rotated files
-- Table search (`/` to set, `x` to clear) and service-based filter (`h` to set, `z` to clear) with indicators in caption
+ - Table search (`/` to set, `x` to clear) and service-based filter (`h` to set, `z` to clear) with indicators in caption
  - Group management menu: list groups, rename, delete, and bulk move servers between groups
 - Language management: add new language, check missing keys, list languages
  - Input validation for Host/IP and port (safer add/edit flows)
+ - Safe parameter validation for system ping fallback
+ - File permissions and privacy hardening for config and logs
 - Python logging integration with rotation (`RotatingFileHandler`) for `monitor.log`
 - Log rows written using Python `csv` module (standardized fields)
 - Atomic file writes for save operations (temp + `os.replace`)

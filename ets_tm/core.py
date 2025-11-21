@@ -26,8 +26,21 @@ class PortPolicy:
 
 def ping_host(host: str, timeout: float, prefer_system_ping: bool, policy: Optional[PingPolicy] = None) -> Optional[float]:
     pol = policy or PingPolicy()
+    def _safe_arg(h: str) -> bool:
+        if not h:
+            return False
+        if h.startswith("-"):
+            return False
+        if any(c.isspace() for c in h):
+            return False
+        for ch in h:
+            if not (ch.isalnum() or ch in ".-"):
+                return False
+        return True
     if prefer_system_ping:
         try:
+            if not _safe_arg(host):
+                raise ValueError("unsafe host arg")
             proc = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, timeout=timeout + 1)
             if proc.returncode == 0:
                 out = proc.stdout or proc.stderr
@@ -44,6 +57,8 @@ def ping_host(host: str, timeout: float, prefer_system_ping: bool, policy: Optio
     except Exception:
         pass
     try:
+        if not _safe_arg(host):
+            return None
         proc = subprocess.run(["ping", "-c", "1", host], capture_output=True, text=True, timeout=timeout + 1)
         if proc.returncode != 0:
             return None

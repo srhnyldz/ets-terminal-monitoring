@@ -73,6 +73,34 @@ def _atomic_write_text(path: str, text: str) -> None:
             pass
 
 
+def _secure_file(path: str, mode: int = 0o600) -> None:
+    try:
+        if os.name == "posix" and os.path.exists(path):
+            os.chmod(path, mode)
+    except Exception:
+        pass
+
+
+class SecureRotatingFileHandler(RotatingFileHandler):
+    def __init__(self, filename, maxBytes=0, backupCount=0, encoding=None):
+        super().__init__(filename, maxBytes=maxBytes, backupCount=backupCount, encoding=encoding)
+        _secure_file(filename, 0o600)
+
+    def doRollover(self):
+        try:
+            super().doRollover()
+        finally:
+            try:
+                _secure_file(self.baseFilename, 0o600)
+                # Also secure rotated backups if they exist
+                for i in range(1, int(getattr(self, "backupCount", 0)) + 1):
+                    p = f"{self.baseFilename}.{i}"
+                    if os.path.exists(p):
+                        _secure_file(p, 0o600)
+            except Exception:
+                pass
+
+
 def save_servers(path: str, backup_path: str, servers: List[Dict[str, Any]], validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> None:
     payload = [validator(s) if validator else s for s in servers]
     content = "".join(json.dumps(s, ensure_ascii=False) + "\n" for s in payload)
@@ -118,6 +146,7 @@ def load_settings(path: str, defaults: Dict[str, Any], validator: Optional[Calla
 def save_settings(path: str, settings: Dict[str, Any], validator: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None) -> None:
     payload = validator(settings) if validator else settings
     _atomic_write_text(path, json.dumps(payload, ensure_ascii=False, indent=2))
+    _secure_file(path, 0o600)
 
 
 def ensure_log_header(path: str) -> None:
@@ -125,6 +154,7 @@ def ensure_log_header(path: str) -> None:
     if not os.path.exists(path):
         with open(path, "w", encoding="utf-8") as f:
             f.write(header)
+        _secure_file(path, 0o600)
         return
     try:
         with open(path, "r", encoding="utf-8") as f:
@@ -135,6 +165,7 @@ def ensure_log_header(path: str) -> None:
                 f.seek(0)
                 f.write(header)
                 f.write(content)
+            _secure_file(path, 0o600)
     except Exception:
         pass
 
@@ -148,7 +179,8 @@ def get_logger(path: str, max_bytes: int = 1048576, backup_count: int = 3) -> lo
         return logger
     logger = logging.getLogger(f"ets_tm.log.{path}")
     logger.setLevel(logging.INFO)
-    handler = RotatingFileHandler(path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
+    ensure_log_header(path)
+    handler = SecureRotatingFileHandler(path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8")
     handler.setFormatter(logging.Formatter("%(message)s"))
     logger.addHandler(handler)
     logger.propagate = False
@@ -158,6 +190,10 @@ def get_logger(path: str, max_bytes: int = 1048576, backup_count: int = 3) -> lo
 
 def _acquire_lock(path: str):
     lock_path = path + ".lock"
+    try:
+        ensure_dir(os.path.dirname(lock_path) or ".")
+    except Exception:
+        pass
     if HAS_FCNTL:
         f = open(lock_path, "w")
         fcntl.flock(f, fcntl.LOCK_EX)

@@ -1,5 +1,19 @@
 # Changelog
 
+## v2.5.1 — 2025-11-21
+
+- Safe parameter validation for system `ping` fallback
+  - Reject unsafe host args (leading `-`, whitespace, non-alnum `.-`)
+  - Prevent unintended option parsing in fallback calls
+- Version bumped to 2.5.1
+
+## v2.5.2 — 2025-11-21
+
+- File permissions and privacy (config/log)
+  - Enforce `0600` permissions for `config.json`, `monitor.log` and rotations
+  - Secure rotating handler to chmod new/rotated files on POSIX
+- Version bumped to 2.5.2
+
 ## v2.5.0 — 2025-11-21
 
 - Input validation for Host/IP and port

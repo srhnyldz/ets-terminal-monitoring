@@ -20,12 +20,16 @@ class TestLoggingCSV(unittest.TestCase):
                 "10.5",
                 "99.99",
             ]
-            append_log_row(p, row)
-            with open(p, "r", encoding="utf-8") as f:
-                lines = f.read().splitlines()
-            self.assertTrue(lines[0].startswith("date;"))
-            self.assertEqual(lines[1].split(";")[0], "2025-11-20T12:00:00")
-            self.assertEqual(lines[1].split(";")[1], "General")
+        append_log_row(p, row)
+        with open(p, "r", encoding="utf-8") as f:
+            lines = f.read().splitlines()
+        self.assertTrue(lines[0].startswith("date;"))
+        self.assertEqual(lines[1].split(";")[0], "2025-11-20T12:00:00")
+        self.assertEqual(lines[1].split(";")[1], "General")
+        # permission check on POSIX
+        if os.name == "posix":
+            mode = os.stat(p).st_mode & 0o777
+            self.assertEqual(mode, 0o600)
 
 
 if __name__ == "__main__":
