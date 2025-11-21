@@ -1,5 +1,13 @@
 # Changelog
 
+## v2.6.1 — 2025-11-21
+
+- FastAPI REST API skeleton
+  - Endpoints: servers (CRUD), settings (GET/PUT), stats (GET), logs summary (GET), server check (GET)
+  - CORS enabled for cross-platform clients
+  - Uses FileRepository and MonitoringService
+- Version bumped to 2.6.1
+
 ## v2.6.0 — 2025-11-21
 
 - Architecture modularization (skeleton)
