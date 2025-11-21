@@ -1,5 +1,15 @@
 # Changelog
 
+## v2.6.4 — 2025-11-21
+
+- CLI integration with Remote API (read-only)
+  - New flag `--api-url` switches CLI to remote read mode
+  - Reads servers, settings, stats, and logs summary via HTTP
+  - Local write operations are disabled in remote mode with safe warnings
+  - Backward compatible: default remains local file mode
+- Lint/typecheck cleanup and minor refactors
+- Version bumped to 2.6.4
+
 ## v2.6.3 — 2025-11-21
 
 - OpenAPI schema and Pydantic models

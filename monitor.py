@@ -3,24 +3,21 @@
 
 import os
 import json
-import socket
 import time
-import subprocess
-import re
 import sys
 import argparse
 import select
 import termios
 import tty
+import urllib.request
+import urllib.error
 from pathlib import Path
 from datetime import datetime
-from typing import Optional, List, Dict, Any, Type
+from typing import Optional, List, Dict, Any
 
-from ping3 import ping
 from rich.console import Console
 from rich.table import Table
 from rich.live import Live
-from rich import box
 from ets_tm.core import ping_host as core_ping_host, check_port as core_check_port
 from ets_tm.ui import build_table as ui_build_table
 import ets_tm.app_io as app_io
@@ -31,7 +28,7 @@ console = Console()
 
 APP_NAME = "ETS Terminal Monitoring"
 APP_URL = "www.etsteknoloji.com.tr"
-APP_VERSION = "2.6.3"
+APP_VERSION = "2.6.4"
 
 class AppState:
     def __init__(self) -> None:
@@ -52,9 +49,10 @@ LOG_FILE = str(BASE_DIR / "monitor.log")
 SETTINGS_FILE = str(BASE_DIR / "config.json")
 BACKUP_FILE = str(BASE_DIR / "servers.bak")
 BACKUPS_DIR = str(BASE_DIR / "backups")
+API_URL: Optional[str] = None
 
 try:
-    import pydantic  # type: ignore
+    __import__("pydantic")
     HAS_PYDANTIC = True
 except Exception:
     HAS_PYDANTIC = False
@@ -152,6 +150,13 @@ def print_header():
 
 
 def load_servers() -> List[Dict[str, Any]]:
+    if API_URL:
+        try:
+            with urllib.request.urlopen(f"{API_URL}/servers") as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return [validate_server_dict(s) for s in data]
+        except Exception:
+            return []
     servers = app_io.load_servers(CONFIG_FILE, BACKUP_FILE, validate_server_dict)
     if not servers and os.path.exists(BACKUP_FILE):
         console.print(f"[yellow]{t('backup.restored')}[/yellow]")
@@ -159,6 +164,9 @@ def load_servers() -> List[Dict[str, Any]]:
 
 
 def save_servers(servers: List[Dict[str, Any]]) -> None:
+    if API_URL:
+        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        return
     app_io.save_servers(CONFIG_FILE, BACKUP_FILE, servers, validate_server_dict)
     try:
         app_io.incremental_backup(CONFIG_FILE, BACKUPS_DIR, prefix="servers", max_count=100)
@@ -167,10 +175,19 @@ def save_servers(servers: List[Dict[str, Any]]) -> None:
 
 
 def load_stats() -> Dict[str, Dict[str, int]]:
+    if API_URL:
+        try:
+            with urllib.request.urlopen(f"{API_URL}/stats") as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            return {}
     return app_io.load_stats(STATS_FILE)
 
 
 def save_stats(stats: Dict[str, Dict[str, int]]) -> None:
+    if API_URL:
+        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        return
     app_io.save_stats(STATS_FILE, stats)
 
 def load_settings() -> Dict[str, Any]:
@@ -186,9 +203,19 @@ def load_settings() -> Dict[str, Any]:
         "retry_attempts": 3,
         "retry_base_delay": 0.2,
     }
+    if API_URL:
+        try:
+            with urllib.request.urlopen(f"{API_URL}/settings") as resp:
+                data = json.loads(resp.read().decode("utf-8"))
+                return validate_settings_dict(data)
+        except Exception:
+            return defaults.copy()
     return app_io.load_settings(SETTINGS_FILE, defaults, validate_settings_dict)
 
 def save_settings(settings: Dict[str, Any]) -> None:
+    if API_URL:
+        console.print("[yellow]Remote mode: save not supported[/yellow]")
+        return
     app_io.save_settings(SETTINGS_FILE, settings, validate_settings_dict)
 
 settings = load_settings()
@@ -285,6 +312,12 @@ def ensure_log_header() -> None:
     app_io.ensure_log_header(LOG_FILE)
 
 def get_summary_metrics() -> Dict[str, Any]:
+    if API_URL:
+        try:
+            with urllib.request.urlopen(f"{API_URL}/logs/summary") as resp:
+                return json.loads(resp.read().decode("utf-8"))
+        except Exception:
+            return {"1h": {"up": 0, "down": 0, "avg_ping": None, "uptime": None}, "24h": {"up": 0, "down": 0, "avg_ping": None, "uptime": None}}
     try:
         return app_io.read_log_summary(LOG_FILE)
     except Exception:
@@ -964,6 +997,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(add_help=True)
     parser.add_argument("pos_lang", nargs="?", help="language code like 'en' or 'tr'")
     parser.add_argument("--lang", dest="lang", help="language code like 'en' or 'tr'")
+    parser.add_argument("--api-url", dest="api_url", help="remote API base URL like 'http://127.0.0.1:8000'")
     parser.add_argument("--version", "-V", action="store_true", help="print version and exit")
     parser.add_argument("--add", action="store_true", help="open add server flow")
     parser.add_argument("--list", dest="list_servers", action="store_true", help="list saved servers")
@@ -987,6 +1021,8 @@ if __name__ == "__main__":
         sys.exit(0)
     code = args.lang or args.pos_lang or DEFAULT_LANG
     set_language(code)
+    if args.api_url:
+        API_URL = args.api_url.rstrip("/")
     DEPS = bootstrap()
     if args.add_language:
         code = args.add_language.strip()
@@ -1001,7 +1037,7 @@ if __name__ == "__main__":
                     json.dump(en, f, ensure_ascii=False, indent=2)
                 console.print(f"[green]{t('lang.added')}[/green] {p}")
             except Exception:
-                console.print(f"[red]Failed to add language[/red]")
+                console.print("[red]Failed to add language[/red]")
     elif args.check_language:
         code = args.check_language.strip()
         en = load_language("en")
@@ -1044,7 +1080,7 @@ if __name__ == "__main__":
         if changed > 0:
             console.print(f"[green]Migrated[/green] {changed} file(s)")
         else:
-            console.print(f"[yellow]No changes[/yellow]")
+            console.print("[yellow]No changes[/yellow]")
     elif args.backup_servers:
         target_dir = args.backup_servers or BACKUPS_DIR
         built = app_io.incremental_backup(CONFIG_FILE, target_dir, prefix="servers", max_count=100)
@@ -1052,7 +1088,7 @@ if __name__ == "__main__":
         if built:
             console.print(f"[green]Backup created[/green] -> {built}")
         else:
-            console.print(f"[red]Backup failed[/red]")
+            console.print("[red]Backup failed[/red]")
     elif args.restore_latest:
         source_dir = args.restore_latest or BACKUPS_DIR
         latest = app_io.find_latest_backup(source_dir, prefix="servers")
@@ -1060,14 +1096,14 @@ if __name__ == "__main__":
         if latest and app_io.restore_file_from_backup(CONFIG_FILE, latest):
             console.print(f"[green]Restored[/green] <- {latest}")
         else:
-            console.print(f"[red]Restore failed[/red]")
+            console.print("[red]Restore failed[/red]")
     elif args.restore_servers:
         ok = app_io.restore_file_from_backup(CONFIG_FILE, args.restore_servers)
         print_header()
         if ok:
             console.print(f"[green]Restored[/green] <- {args.restore_servers}")
         else:
-            console.print(f"[red]Restore failed[/red]")
+            console.print("[red]Restore failed[/red]")
     elif args.export_json:
         servers = load_servers()
         app_io.export_servers_json(args.export_json, servers)
@@ -1086,7 +1122,7 @@ if __name__ == "__main__":
             console.print(f"[green]Imported[/green] <- {args.import_json}")
         else:
             print_header()
-            console.print(f"[red]No servers imported[/red]")
+            console.print("[red]No servers imported[/red]")
     elif args.import_csv:
         incoming = app_io.import_servers_csv(args.import_csv, validate_server_dict)
         if incoming:
@@ -1095,7 +1131,7 @@ if __name__ == "__main__":
             console.print(f"[green]Imported[/green] <- {args.import_csv}")
         else:
             print_header()
-            console.print(f"[red]No servers imported[/red]")
+            console.print("[red]No servers imported[/red]")
     elif args.add:
         add_server_interactive()
     elif args.list_servers:

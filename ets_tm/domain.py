@@ -1,4 +1,4 @@
-from typing import TypedDict, Optional, Dict, Any
+from typing import TypedDict, Optional, Dict
 
 
 class Server(TypedDict, total=False):

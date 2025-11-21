@@ -3,7 +3,7 @@
 English
 
 - Overview: A terminal-based server monitoring tool. Displays group, name, host/IP, service, port, ping RTT, uptime, and status with a live updating Rich table.
-- Version: v2.6.3
+- Version: v2.6.4
 
 Features
 
@@ -22,6 +22,7 @@ Features
 - Package modules under `ets_tm/` with cleaned imports
 - Modular architecture: domain/service/repository skeleton for FastAPI and Textual
 - FastAPI-based REST API skeleton (servers, settings, stats, logs; CORS)
+- CLI integration with Remote API (read-only) via `--api-url`
 - API run example: `uvicorn ets_tm.api:app --reload`
  - Background monitoring service (periodic ping/port; logs & stats updates)
 - Basic unit tests with `unittest` (`tests/`)
@@ -72,6 +73,7 @@ Usage
 Quick Notes
 
 - Start: `python monitor.py`
+- Remote API mode (read-only): `python monitor.py --api-url http://127.0.0.1:8000`
 - Language: `--lang tr` or positional `tr`
 - Version: `--version`
 - CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`
@@ -133,7 +135,7 @@ Development
 Türkçe
 
 - Genel Bakış: Terminal tabanlı izleme aracı. Grup, ad, host/IP, servis, port, ping RTT, uptime ve durum bilgilerini canlı tabloda gösterir.
-- Sürüm: v2.6.3
+- Sürüm: v2.6.4
 
 Özellikler
 
@@ -152,6 +154,7 @@ Türkçe
 - Modüller `ets_tm/` altında paketlendi; import yolları temizlendi
 - Modüler mimari: domain/servis/repo iskeleti; FastAPI ve Textual hazırlığı
 - FastAPI tabanlı REST API iskeleti (servers, settings, stats, logs; CORS)
+- CLI ile Remote API entegrasyonu (salt-okuma) `--api-url`
 - API çalıştırma örneği: `uvicorn ets_tm.api:app --reload`
  - Arka plan izleme servisi (periyodik ping/port; log ve istatistik güncelleme)
 - Temel birim testleri `unittest` ile (`tests/`)
@@ -254,6 +257,7 @@ Geliştirme
 Kısa Notlar
 
 - Başlat: `python monitor.py`
+- Remote API modu (salt-okuma): `python monitor.py --api-url http://127.0.0.1:8000`
 - Dil: `--lang tr` veya konumsal `tr`
 - Sürüm: `--version`
 - CLI: `--add`, `--list`, `--edit`, `--group-filter <grp>`, `--clear-filter`

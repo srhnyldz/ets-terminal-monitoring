@@ -40,12 +40,12 @@ def load_servers(path: str, backup_path: str, validator: Optional[Callable[[Dict
                 cf.write(bf.read())
             with open(path, "r", encoding="utf-8") as f:
                 servers = []
-                for l in f:
-                    l = l.strip()
-                    if not l:
+                for line_str in f:
+                    line_str = line_str.strip()
+                    if not line_str:
                         continue
                     try:
-                        obj = json.loads(l)
+                        obj = json.loads(line_str)
                         if validator:
                             obj = validator(obj)
                         servers.append(obj)
